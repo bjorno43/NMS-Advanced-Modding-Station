@@ -1,0 +1,420 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Configuration;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace AdvancedModdingStation
+{
+    class NMSPackagesManager
+    {
+        MainForm form;
+        public NMSPackagesManager(MainForm form)
+        {
+            this.form = form;
+        }
+
+        public void unpackGamePackages()
+        {
+            string unpackedDir = ConfigurationManager.AppSettings.Get("unpackedDir");
+            string gameDir = ConfigurationManager.AppSettings.Get("gameDir");
+            string pcBanksDir = gameDir + "\\GAMEDATA\\PCBANKS";
+            string[] gameFiles = { };
+
+            // If the unpacked game files directory doesn't exist, it's safe to assume that the game files aren't unpacked yet
+            if (String.IsNullOrWhiteSpace(unpackedDir))
+            {
+                string errorMessage = this.form.applicationName + " encountered an error while trying to read your Unpacked Game Files setting." + Environment.NewLine + Environment.NewLine;
+                errorMessage += "Error type: " + MainForm.errorType.Misconfiguration + Environment.NewLine;
+                errorMessage += "Solution: Please go to Config => Settings and setup your Paths before attempting to unpack." + Environment.NewLine;
+                string caption = "Error!";
+
+                DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                if(errorResult == DialogResult.OK)
+                {
+                    return;
+                }
+            }
+
+            if (!Directory.Exists(unpackedDir))
+            {
+                try
+                {
+                    DirectoryInfo di = Directory.CreateDirectory(unpackedDir);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    string errorMessage = this.form.applicationName + " encountered an error while trying to create your Unpacked Game Files directory (it doesn't exist yet)." + Environment.NewLine + Environment.NewLine;
+                    errorMessage += "Error type: " + MainForm.errorType.Windows + " (Access denied!) " + Environment.NewLine;
+                    errorMessage += "Solution: Please make sure you have full read / write access to " + ConfigurationManager.AppSettings.Get("unpackedDir");
+                    string caption = "Error!";
+
+                    DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+
+                    if (errorResult == DialogResult.Retry)
+                    {
+                        unpackGamePackages();
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                catch (PathTooLongException)
+                {
+                    string errorMessage = this.form.applicationName + " encountered an error while trying to create your Unpacked Game Files directory it doesn't exist yet)." + Environment.NewLine + Environment.NewLine;
+                    errorMessage += "Error type: " + MainForm.errorType.Windows + " (Path too long!) " + Environment.NewLine;
+                    errorMessage += "Solution: Please use a short path for your Unpacked Game Files directory. For example: C:\\NMSAdvancedModdingStation\\Unpacked";
+                    string caption = "Error!";
+
+                    DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+
+                    if (errorResult == DialogResult.Retry)
+                    {
+                        unpackGamePackages();
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                // Directory already exists. Lets check if it's empty or not
+                if (Directory.EnumerateFileSystemEntries(unpackedDir).Any())
+                {
+                    string infoMessage = this.form.applicationName + " detected that " + ConfigurationManager.AppSettings.Get("unpackedDir") + " is not empty." + Environment.NewLine + Environment.NewLine;
+                    infoMessage += "Do you wish to use its contents as your Unpacked Game Files instead?" + Environment.NewLine + Environment.NewLine;
+                    infoMessage += "Press Yes to use the existing contents. Press No to delete the existing contents and unpack new game files.";
+                    string caption = "Unpack Game folder not empty!";
+
+                    DialogResult infoResult = MessageBox.Show(infoMessage, caption, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if(infoResult == DialogResult.No)
+                    {
+                        // Directory not empty. Lets remove everything before proceding
+                        DirectoryInfo di = new DirectoryInfo(unpackedDir);
+                        string[] oldFiles = Directory.GetFiles(unpackedDir, "*.*", SearchOption.AllDirectories);
+                        double percentagePerFile = 100.0 / oldFiles.Length;
+                        double currentProgressPercentage = 0.0;
+
+                        form.labelInfo.Text = "Deleting old unpacked game files..";
+                        foreach (FileInfo file in di.EnumerateFiles())
+                        {
+                            file.Delete();
+                            currentProgressPercentage += percentagePerFile;
+                            form.progressBarInfo.Value = (int)Math.Round(currentProgressPercentage, MidpointRounding.AwayFromZero);
+                        }
+
+                        form.labelInfo.Text = "Deleting old unpacked game directories..";
+                        foreach (DirectoryInfo dir in di.EnumerateDirectories())
+                        {
+                            dir.Delete(true);
+                        }
+                        form.progressBarInfo.Value = 0;
+                        form.labelInfo.Text = "Ready!";
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
+
+            try
+            {
+                gameFiles = Directory.GetFiles(pcBanksDir, "NMSARC.*.pak", SearchOption.TopDirectoryOnly);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                string errorMessage = this.form.applicationName + " encountered an error while trying to access " + pcBanksDir + Environment.NewLine + Environment.NewLine;
+                        errorMessage += "Error type: " + MainForm.errorType.Windows + " (Access denied!) " + Environment.NewLine;
+                        errorMessage += "Solution: Please make sure you have full read / write access to " + pcBanksDir;
+                string caption = "Error!";
+
+                DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+
+                if (errorResult == DialogResult.Retry)
+                {
+                    unpackGamePackages();
+                }
+                else
+                {
+                    return;
+                }
+            }
+            catch (DirectoryNotFoundException)
+            {
+                string errorMessage = this.form.applicationName + " encountered an error while trying to access " + pcBanksDir + Environment.NewLine + Environment.NewLine;
+                errorMessage += "Error type: " + MainForm.errorType.Windows + " (Directory not found!) "+ Environment.NewLine;
+                errorMessage += "Solution: Please make sure " + pcBanksDir + " exists before trying again.";
+                string caption = "Error!";
+
+                DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+
+                if (errorResult == DialogResult.Retry)
+                {
+                    unpackGamePackages();
+                }
+                else
+                {
+                    return;
+                }
+            }
+            catch (PathTooLongException)
+            {
+                string errorMessage = this.form.applicationName + " encountered an error while trying to access " + pcBanksDir + Environment.NewLine + Environment.NewLine;
+                        errorMessage += "Error type: " + MainForm.errorType.Windows + " (Path too long!) " + Environment.NewLine;
+                        errorMessage += "Solution: This error should never pop up. It would mean that you managed to install No Man's Sky in a location not accessable by Windows.";
+                string caption = "Error!";
+
+                DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                if (errorResult == DialogResult.OK)
+                {
+                    return;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                string errorMessage = this.form.applicationName + " encountered an unknown error while trying to access " + pcBanksDir + Environment.NewLine + Environment.NewLine;
+                        errorMessage += "Error type: " + MainForm.errorType.Bug + Environment.NewLine;
+                        errorMessage += "Solution: Please file a bug report including the message below:" + Environment.NewLine + Environment.NewLine;
+                        errorMessage += e.Message + Environment.NewLine + Environment.NewLine;
+                        errorMessage += "Press Cancel to save any unsaved work or Ok to close " + form.applicationName;
+                string caption = "Error!";
+
+                DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+
+                if (errorResult == DialogResult.Cancel)
+                {
+                    return;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            if (gameFiles != null && gameFiles.Length != 0)
+            {
+                string unpackPath = unpackedDir;
+                PSArcXmlFile.XmlFileType xmlType = PSArcXmlFile.XmlFileType.Extract;
+                PSArcXmlFile gamefilesXML1 = new PSArcXmlFile(xmlType);
+                                gamefilesXML1.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML2 = new PSArcXmlFile(xmlType);
+                                gamefilesXML2.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML3 = new PSArcXmlFile(xmlType);
+                                gamefilesXML3.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML4 = new PSArcXmlFile(xmlType);
+                                gamefilesXML4.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML5 = new PSArcXmlFile(xmlType);
+                                gamefilesXML5.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML6 = new PSArcXmlFile(xmlType);
+                gamefilesXML6.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML7 = new PSArcXmlFile(xmlType);
+                gamefilesXML7.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML8 = new PSArcXmlFile(xmlType);
+                gamefilesXML8.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML9 = new PSArcXmlFile(xmlType);
+                gamefilesXML9.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML10 = new PSArcXmlFile(xmlType);
+                gamefilesXML10.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML11 = new PSArcXmlFile(xmlType);
+                gamefilesXML11.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML12 = new PSArcXmlFile(xmlType);
+                gamefilesXML12.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML13 = new PSArcXmlFile(xmlType);
+                gamefilesXML13.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML14 = new PSArcXmlFile(xmlType);
+                gamefilesXML14.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML15 = new PSArcXmlFile(xmlType);
+                gamefilesXML15.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML16 = new PSArcXmlFile(xmlType);
+                gamefilesXML16.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML17 = new PSArcXmlFile(xmlType);
+                gamefilesXML17.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML18 = new PSArcXmlFile(xmlType);
+                gamefilesXML18.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML19 = new PSArcXmlFile(xmlType);
+                gamefilesXML19.OutputFileName = unpackPath;
+                PSArcXmlFile gamefilesXML20 = new PSArcXmlFile(xmlType);
+                gamefilesXML20.OutputFileName = unpackPath;
+                int twenty = gameFiles.Length / 20;
+                int counter = 1;
+
+                foreach (string file in gameFiles)
+                {
+                    if (counter <= twenty)
+                    {
+                        gamefilesXML1.AddPakToExtract(file);
+                    }
+                    if (counter > twenty && counter <= twenty * 2)
+                    {
+                        gamefilesXML2.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 2 && counter <= twenty * 3)
+                    {
+                        gamefilesXML3.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 3 && counter <= twenty * 4)
+                    {
+                        gamefilesXML4.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 4 && counter <= twenty * 5)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 5 && counter <= twenty * 6)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 6 && counter <= twenty * 7)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 7 && counter <= twenty * 8)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 8 && counter <= twenty * 9)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 9 && counter <= twenty * 10)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 10 && counter <= twenty * 11)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 11 && counter <= twenty * 12)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 12 && counter <= twenty * 13)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 13 && counter <= twenty * 14)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 14 && counter <= twenty * 15)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 15 && counter <= twenty * 16)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 16 && counter <= twenty * 17)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 17 && counter <= twenty * 18)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 18 && counter <= twenty * 19)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    if (counter > twenty * 19)
+                    {
+                        gamefilesXML5.AddPakToExtract(file);
+                    }
+                    counter++;
+                }
+                PSArc psarc = new PSArc();
+
+                BackgroundWorker bw = new BackgroundWorker();
+
+                // this allows our worker to report progress during work
+                bw.WorkerReportsProgress = true;
+
+                // what to do in the background thread
+                bw.DoWork += new DoWorkEventHandler(
+                delegate (object o, DoWorkEventArgs args)
+                {
+                    BackgroundWorker b = o as BackgroundWorker;
+
+                    form.Invoke((MethodInvoker)(() => form.buildToolStripMenuItem.Enabled = false));
+
+                    b.ReportProgress(0);
+                    psarc.Extract(gamefilesXML1);
+                    b.ReportProgress(5);
+                    psarc.Extract(gamefilesXML2);
+                    b.ReportProgress(10);
+                    psarc.Extract(gamefilesXML3);
+                    b.ReportProgress(15);
+                    psarc.Extract(gamefilesXML4);
+                    b.ReportProgress(20);
+                    psarc.Extract(gamefilesXML5);
+                    b.ReportProgress(25);
+                    psarc.Extract(gamefilesXML6);
+                    b.ReportProgress(30);
+                    psarc.Extract(gamefilesXML7);
+                    b.ReportProgress(35);
+                    psarc.Extract(gamefilesXML8);
+                    b.ReportProgress(40);
+                    psarc.Extract(gamefilesXML9);
+                    b.ReportProgress(45);
+                    psarc.Extract(gamefilesXML10);
+                    b.ReportProgress(50);
+                    psarc.Extract(gamefilesXML11);
+                    b.ReportProgress(55);
+                    psarc.Extract(gamefilesXML12);
+                    b.ReportProgress(60);
+                    psarc.Extract(gamefilesXML13);
+                    b.ReportProgress(65);
+                    psarc.Extract(gamefilesXML14);
+                    b.ReportProgress(70);
+                    psarc.Extract(gamefilesXML15);
+                    b.ReportProgress(75);
+                    psarc.Extract(gamefilesXML16);
+                    b.ReportProgress(80);
+                    psarc.Extract(gamefilesXML17);
+                    b.ReportProgress(85);
+                    psarc.Extract(gamefilesXML18);
+                    b.ReportProgress(90);
+                    psarc.Extract(gamefilesXML19);
+                    b.ReportProgress(95);
+                    psarc.Extract(gamefilesXML20);
+                    b.ReportProgress(100);
+
+                });
+
+                // what to do when progress changed (update the progress bar for example)
+                bw.ProgressChanged += new ProgressChangedEventHandler(
+                delegate (object o, ProgressChangedEventArgs args)
+                {
+                    form.Invoke((MethodInvoker)(() => form.labelInfo.Text = String.Format("Unpacking Game Files {0}%...", args.ProgressPercentage)));
+                    form.Invoke((MethodInvoker)(() => form.progressBarInfo.Value = args.ProgressPercentage));
+                });
+
+                // what to do when worker completes its task (notify the user)
+                bw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(
+                delegate (object o, RunWorkerCompletedEventArgs args)
+                {
+                    form.Invoke((MethodInvoker)(() => form.labelInfo.Text = "Ready!"));
+                    form.Invoke((MethodInvoker)(() => form.progressBarInfo.Value = 0));
+                    form.Invoke((MethodInvoker)(() => form.buildToolStripMenuItem.Enabled = true));
+                });
+
+                bw.RunWorkerAsync();
+            }
+        }
+    }
+}
