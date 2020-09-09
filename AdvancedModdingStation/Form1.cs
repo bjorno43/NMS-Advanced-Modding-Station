@@ -15,6 +15,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AdvancedModdingStation.Properties;
+using System.Diagnostics;
 
 namespace AdvancedModdingStation
 {
@@ -25,6 +27,7 @@ namespace AdvancedModdingStation
         {
             Bug,
             Misconfiguration,
+            Syntax,
             Windows
         }
         // public variables
@@ -32,25 +35,48 @@ namespace AdvancedModdingStation
         public string errorBug;
         public string activeDocument;
         public static string projectFolder;
+        public bool backgroundWorkerInProgress;
+        public bool SearchIsOpen;
         public Dictionary<string, Scintilla> textAreas;
         public Dictionary<string, string> fileLocations;
         public Dictionary<string, bool> filesChanged;
 
         // private variables
-        private bool backgroundWorkerInProgress;
-        private bool SearchIsOpen;
         private TabPage previousTab;
         private Dictionary<TabPage, Color> TabColors;
+        private FileOperations fileOperator;
 
         public MainForm()
         {
             InitializeComponent();
 
-            Application.ApplicationExit += new EventHandler(this.OnApplicationExit);
+            contextMenuStripGameFiles.Opening += new CancelEventHandler(contextMenuStripGameFiles_Opened);
+            tabControl.Deselecting += new TabControlCancelEventHandler(tabControl_Deselecting);
+            tabControl.Selecting += new TabControlCancelEventHandler(tabControl_Selecting);
+            tabControl.DrawItem += new DrawItemEventHandler(DrawOnTab);
+
             this.Resize += new EventHandler(Form1_Resize);
+            this.backgroundWorkerInProgress = false;
+            this.SearchIsOpen = false;
+
+            textAreas = new Dictionary<string, Scintilla>();
+            fileLocations = new Dictionary<string, string>();
+            filesChanged = new Dictionary<string, bool>();
+            TabColors = new Dictionary<TabPage, Color>();
+
+            tabControl.SizeMode = TabSizeMode.Normal;
+
+            TabPage page0 = tabControl.TabPages[0];
+            TabPage page1 = tabControl.TabPages[1];
+            Color col = new Color();
+            col = Color.FromArgb(255, 255, 255, 255);
+            SetTabHeader(page0, col);
+            SetTabHeader(page1, col);
 
             // Set initial variables
             setInitialVariables();
+
+            positionElements();
 
             checkConfigurationSet();
 
@@ -60,28 +86,12 @@ namespace AdvancedModdingStation
 
             hideOpenDocumentRequiredControls();
 
-            positionElements();
-
-            string welcomeText = "Thank you for using " + this.applicationName + "! Please follow these steps to get started:"+ Environment.NewLine + Environment.NewLine;
-            welcomeText += "1. Click Config => Settings and setup your Paths." + Environment.NewLine;
-            welcomeText += "2. Click Build => Unpack Game Files and allow it to finish." + Environment.NewLine;
-            welcomeText += "- " + this.applicationName + " automatically checks if your choosen Unpacked Game Files directory is empty or not." + Environment.NewLine;
-            welcomeText += "  If it's not empty, it'll ask you if you wish to use its contents instead of unpacking new game files." + Environment.NewLine;
-            welcomeText += "  If you choose to unpack anyway, all contents will be removed first!" + Environment.NewLine;
-            welcomeText += "3. Click File => New => Project and choose a project name." + Environment.NewLine;
-            welcomeText += "- Do NOT import / use existing projects from other programs!" + Environment.NewLine;
-            welcomeText += "  " + this.applicationName + " does not use EXML files so it cannot handle those!" + Environment.NewLine;
-            welcomeText += "4. You'll be presented with filetrees for your Unpacked Game Files and your Projects." + Environment.NewLine;
-            welcomeText += "- Browse the Unpacked Game Files and rightclick the files you wish to copy to your project." + Environment.NewLine;
-            welcomeText += "  " + this.applicationName + " automatically takes care of the correct pathways for your Mod." + Environment.NewLine;
-            welcomeText += "5. Browse the Project Files and doubleclick on the files you wish the edit." + Environment.NewLine;
-            welcomeText += "6. A build in XML editor will open where you can do all your work." + Environment.NewLine;
-            welcomeText += "- " + this.applicationName + " has a few build in security measures to make sure you don't make any changes that will not work with the game." + Environment.NewLine;
-            welcomeText += "- Make sure you save your work regularly! Especially during the Alpha phase of " + this.applicationName + "!" + Environment.NewLine;
-            welcomeText += "7. Once you are done, click Build => Build Project to make your mod." + Environment.NewLine;
-            welcomeText += "- Once finsihed, you can find your mod inside your Projects directory. Copy it to your game and have fun!";
+            string welcomeText = "Thank you for using " + this.applicationName + "!" + Environment.NewLine + Environment.NewLine;
+                   welcomeText += "Please click Config => Settings and setup your Paths to begin!";
 
             labelMainFormWelcome.Text = welcomeText;
+
+            fileOperator = new FileOperations(this);
         }
 
         private void Form1_Resize(object sender, System.EventArgs e)
@@ -111,11 +121,97 @@ namespace AdvancedModdingStation
             showHelpMenu();
         }
 
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            saveMbinFile();
+        }
+
+        private void saveAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            saveAllMbinFiles();
+        }
+
         private void listBoxProjects_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (listBoxProjects.SelectedItem != null)
             {
                 openProject(listBoxProjects.SelectedItem.ToString());
+            }
+        }
+
+        private void listViewProjectFiles_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            openMBINFile();
+        }
+
+        private void copyToProjectFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectedItems = listViewGameFiles.SelectedItems;
+
+            for (int i = 0; i < selectedItems.Count; i++)
+            {
+                string sourcePath = selectedItems[i].SubItems[3].Text;
+                string sourceRoot = ConfigurationManager.AppSettings.Get("unpackedDir") + "\\";
+                string destinationRoot = ConfigurationManager.AppSettings.Get("projectsDir") + "\\" + projectFolder;
+
+                FileAttributes attr = File.GetAttributes(sourcePath);
+
+                if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+                {
+                    string relativePath = MakeRelativePath(sourceRoot, sourcePath);
+                    string destinationPath = Path.GetFullPath(Path.Combine(destinationRoot, relativePath));
+                    Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+
+                    var diSource = new DirectoryInfo(sourcePath);
+                    var diTarget = new DirectoryInfo(destinationPath);
+
+                    CopyAll(diSource, diTarget);
+                }
+                else
+                {
+                    string fileName = selectedItems[i].Text;
+                    string relativePath = MakeRelativePath(sourceRoot, sourcePath);
+                    string destinationPath = Path.GetFullPath(Path.Combine(destinationRoot, relativePath));
+                    Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+
+                    // Copy the file over.
+                    if (File.Exists(destinationPath))
+                    {
+                        var confirmResult = MessageBox.Show(fileName + " already exists in your project. Do you wish to overwrite it?",
+                            "Overwrite " + fileName + "?",
+                                     MessageBoxButtons.YesNo);
+                        if (confirmResult == DialogResult.Yes)
+                        {
+                            File.Copy(sourcePath, destinationPath, true);
+                        }
+                    }
+                    else
+                    {
+                        File.Copy(sourcePath, destinationPath);
+                    }
+                }
+            }
+            PopulateProjectTreeView();
+        }
+
+        private void tabControl_MouseDown(object sender, MouseEventArgs e)
+        {
+            TabPage tab = (sender as TabControl).SelectedTab;
+            for (var i = 2; i < this.tabControl.TabPages.Count; i++)
+            {
+                var tabRect = this.tabControl.GetTabRect(i);
+                tabRect.Inflate(-2, -2);
+                var closeImage = new Bitmap(Resources.close02);
+                var imageRect = new Rectangle(
+                    (tabRect.Right - closeImage.Width),
+                    tabRect.Top + (tabRect.Height - closeImage.Height) / 2,
+                    closeImage.Width,
+                    closeImage.Height);
+                if (imageRect.Contains(e.Location))
+                {
+                    CloseTab(tab);
+                    break;
+                }
             }
         }
 
@@ -195,6 +291,227 @@ namespace AdvancedModdingStation
             listViewProjectFiles.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
         }
 
+        private void cutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.CutText();
+        }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.CopyText();
+        }
+
+        private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.PasteText();
+        }
+
+        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.SelectAllText();
+        }
+
+        private void clearSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.SelectClearText();
+        }
+
+        private void indentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.IndentText();
+        }
+
+        private void outdentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.OutdentText();
+        }
+
+        private void uppercaseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.Uppercase();
+        }
+
+        private void lowercaseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.Lowercase();
+        }
+
+        private void wordWrapToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.WordWrap();
+        }
+
+        private void showIndentGuidesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.IndentGuides();
+        }
+
+        private void showWhitespaceToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.WhiteSpace();
+        }
+
+        private void zoomInToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.ZoomIn();
+        }
+
+        private void zoomOutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.ZoomOut();
+        }
+
+        private void zoom100ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.ZoomDefault();
+        }
+
+        private void collapseAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.CollapseAll();
+        }
+
+        private void expandAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.ExpandAll();
+        }
+
+        private void findToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fileOperator.OpenSearch();
+        }
+
+        private void textBoxSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (HotKeyManager.IsHotkey(e, Keys.Enter))
+            {
+                SearchManager.Find(true, false);
+            }
+            if (HotKeyManager.IsHotkey(e, Keys.Enter, true) || HotKeyManager.IsHotkey(e, Keys.Enter, false, true))
+            {
+                SearchManager.Find(false, false);
+            }
+        }
+
+        private void BtnPrevSearch_Click(object sender, EventArgs e)
+        {
+            SearchManager.Find(false, false);
+        }
+
+        private void BtnNextSearch_Click(object sender, EventArgs e)
+        {
+            SearchManager.Find(true, false);
+        }
+
+        private void BtnCloseSearch_Click(object sender, EventArgs e)
+        {
+            CloseSearch();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (checkUnpackingInProgress())
+            {
+                if (Application.MessageLoop)
+                {
+                    Application.Exit();
+                }
+                else
+                {
+                    Environment.Exit(1);
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        private void fileToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            TabPage tab = tabControl.SelectedTab;
+
+            if(tab.Name == "tabPage1" || tab.Name == "tabPage2")
+            {
+                return;
+            }
+            else
+            {
+                CloseTab(tab);
+            }
+        }
+
+        private void projectToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            CloseProject();
+        }
+
+        private void buildProjectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string[] projectFiles = { };
+
+            projectFiles = Directory.GetFiles(ConfigurationManager.AppSettings.Get("projectsDir") + "\\" + projectFolder, "*.*", SearchOption.AllDirectories);
+            if (projectFiles != null && projectFiles.Length != 0)
+            {
+                File.WriteAllLines(@"pakFiles.txt", projectFiles);
+
+                var path = Path.GetTempFileName() + ".exe";
+                var txtFile = new FileInfo(@"pakFiles.txt");
+                File.WriteAllBytes(path, Properties.Resources.psarc);
+                var arguments = string.Format("create -a --zlib --inputfile=\"{0}\" --output=\"{1}\"", AppDomain.CurrentDomain.BaseDirectory + "\\pakFiles.txt", ConfigurationManager.AppSettings.Get("projectsDir") + "\\" + projectFolder + "\\" + projectFolder + ".pak");
+                var procInfo = new ProcessStartInfo(path, arguments);
+                procInfo.WorkingDirectory = ConfigurationManager.AppSettings.Get("projectsDir") + "\\" + projectFolder;
+                procInfo.CreateNoWindow = true;
+                procInfo.UseShellExecute = false;
+                Process p = new Process();
+                p.StartInfo = procInfo;
+                p.Start();
+                p.WaitForExit();
+
+                File.Delete(AppDomain.CurrentDomain.BaseDirectory + "\\pakFiles.txt");
+
+                MessageBox.Show(projectFolder + ".pak succesfully created!");
+            }
+        }
+
+        private void contextMenuStripGameFiles_Opened(object sender, CancelEventArgs e)
+        {
+            if (listViewGameFiles.SelectedIndices.Count < 1)
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void tabControl_Deselecting(object sender, TabControlCancelEventArgs e)
+        {
+            TabPage current = (sender as TabControl).SelectedTab;
+            previousTab = current;
+        }
+
+        private void tabControl_Selecting(object sender, TabControlCancelEventArgs e)
+        {
+            TabPage current = (sender as TabControl).SelectedTab;
+            if (tabControl.SelectedIndex > 1)
+            {
+                showOpenDocumentRequiredControls();
+                if (current.Text.EndsWith("*"))
+                {
+                    activeDocument = current.Text.Substring(0, current.Text.Length - 2);
+                }
+                else
+                {
+                    activeDocument = current.Text;
+                }
+                labelInfo.Text = activeDocument;
+            }
+            else
+            {
+                hideOpenDocumentRequiredControls();
+                activeDocument = "";
+                labelInfo.Text = "No document selected.";
+            }
+        }
+
         private void setInitialVariables()
         {
             this.applicationName = "NMS Advanced Modding Station";
@@ -259,6 +576,34 @@ namespace AdvancedModdingStation
             }
         }
 
+        private void DrawOnTab(object sender, DrawItemEventArgs e)
+        {
+
+            using (Brush br = new SolidBrush(TabColors[tabControl.TabPages[e.Index]]))
+            {
+                e.Graphics.FillRectangle(br, e.Bounds);
+                SizeF sz = e.Graphics.MeasureString(tabControl.TabPages[e.Index].Text, e.Font);
+                e.Graphics.DrawString(tabControl.TabPages[e.Index].Text, e.Font, Brushes.Black, e.Bounds.Left + (e.Bounds.Width - sz.Width) / 2, e.Bounds.Top + (e.Bounds.Height - sz.Height) / 2 + 1);
+
+                Rectangle rect = e.Bounds;
+                rect.Offset(0, 1);
+                rect.Inflate(0, -1);
+                e.Graphics.DrawRectangle(Pens.DarkGray, rect);
+                e.DrawFocusRectangle();
+            }
+
+            if (e.Index > 1)
+            {
+                var tabPage = this.tabControl.TabPages[e.Index];
+                var tabRect = this.tabControl.GetTabRect(e.Index);
+                tabRect.Inflate(-2, -2);
+                var closeImage = new Bitmap(Resources.close02);
+                e.Graphics.DrawImage(closeImage,
+                    (tabRect.Right - closeImage.Width),
+                    tabRect.Top + (tabRect.Height - closeImage.Height) / 2);
+            }
+        }
+
         public void checkConfigurationSet()
         {
             if (String.IsNullOrWhiteSpace(ConfigurationManager.AppSettings.Get("gameDir")))
@@ -281,37 +626,69 @@ namespace AdvancedModdingStation
 
         private void checkExistingProjects()
         {
-            if (Directory.EnumerateFileSystemEntries(ConfigurationManager.AppSettings.Get("projectsDir")).Any())
+            try
             {
-                showProjectRequiredControls();
-                loadProjectNames();
+                if (Directory.EnumerateFileSystemEntries(ConfigurationManager.AppSettings.Get("projectsDir")).Any())
+                {
+                    showProjectRequiredControls();
+                    loadProjectNames();
+                }
+                else
+                {
+                    hideProjectRequiredControls();
+                }
             }
-            else
+            catch (ArgumentException)
             {
                 hideProjectRequiredControls();
+            }
+        }
+
+        private bool checkUnpackedGameFiles()
+        {
+            try
+            {
+                if (Directory.EnumerateFileSystemEntries(ConfigurationManager.AppSettings.Get("unpackedDir")).Any())
+                {
+                    return true;
+                } else
+                {
+                    return false;
+                }
+            }
+            catch (ArgumentException)
+            {
+                return false;
             }
         }
 
         private void hideConfigRequiredControls()
         {
             newToolStripMenuItem.Enabled = false;
+            buildToolStripMenuItem.Enabled = false;
         }
 
         private void showConfigRequiredControls()
         {
-            newToolStripMenuItem.Enabled = true;
+            labelMainFormWelcome.Visible = false;
+            if (checkUnpackedGameFiles())
+            {
+                newToolStripMenuItem.Enabled = true;
+                labelFirstProject.Visible = true;
+            } else
+            {
+                labelUnpackGameFiles.Visible = true;
+            }
+            buildToolStripMenuItem.Enabled = true;
         }
 
         private void hideProjectRequiredControls()
         {
-            openToolStripMenuItem.Enabled = false;
             buildProjectToolStripMenuItem.Enabled = false;
         }
 
         private void showProjectRequiredControls()
         {
-            openToolStripMenuItem.Enabled = true;
-            buildProjectToolStripMenuItem.Enabled = true;
             labelMainFormWelcome.Visible = false;
             labelSelectProject.Visible = true;
             listBoxProjects.Visible = true;
@@ -320,11 +697,14 @@ namespace AdvancedModdingStation
         private void hideOpenProjectRequiredControls()
         {
             closeToolStripMenuItem.Enabled = false;
+            buildProjectToolStripMenuItem.Enabled = false;
         }
 
         private void showOpenProjectRequiredControls()
         {
             closeToolStripMenuItem.Enabled = true;
+            buildProjectToolStripMenuItem.Enabled = true;
+            newToolStripMenuItem.Enabled = false;
         }
 
         public void hideOpenDocumentRequiredControls()
@@ -334,6 +714,7 @@ namespace AdvancedModdingStation
             editToolStripMenuItem.Enabled = false;
             searchToolStripMenuItem.Enabled = false;
             viewToolStripMenuItem.Enabled = false;
+            fileToolStripMenuItem1.Enabled = false;
         }
 
         public void showOpenDocumentRequiredControls()
@@ -343,11 +724,16 @@ namespace AdvancedModdingStation
             editToolStripMenuItem.Enabled = true;
             searchToolStripMenuItem.Enabled = true;
             viewToolStripMenuItem.Enabled = true;
+            fileToolStripMenuItem1.Enabled = true;
         }
 
         private void positionElements()
         {
             labelSelectProject.Left = (this.Width - labelSelectProject.Width) / 2;
+            labelUnpackGameFiles.Left = (this.Width - labelUnpackGameFiles.Width) / 2;
+            labelUnpackGameFiles.Top = (this.Height - labelUnpackGameFiles.Height) / 2;
+            labelFirstProject.Left = (this.Width - labelFirstProject.Width) / 2;
+            labelFirstProject.Top = (this.Height - labelFirstProject.Height) / 2;
             labelUnpackingInProgress.Left = (this.Width - labelUnpackingInProgress.Width) / 2;
             labelUnpackingInProgress.Top = (this.Height - labelUnpackingInProgress.Height) / 2;
             listBoxProjects.Left = labelSelectProject.Left;
@@ -391,6 +777,7 @@ namespace AdvancedModdingStation
         private void loadProjectNames()
         {
             string dir = ConfigurationManager.AppSettings.Get("projectsDir");
+            labelFirstProject.Visible = false;
             try
             {
                 string[] subdirs = Directory.GetDirectories(dir).Select(Path.GetFileName).ToArray();
@@ -547,10 +934,120 @@ namespace AdvancedModdingStation
 
             PopulateTreeView();
             PopulateProjectTreeView();
+            showOpenProjectRequiredControls();
 
             labelSelectProject.Visible = false;
             listBoxProjects.Visible = false;
             tabControl.Visible = true;
+            labelFirstProject.Visible = false;
+            unpackGameFilesToolStripMenuItem.Enabled = false;
+        }
+
+        private void openMBINFile()
+        {
+            var selectedItems = listViewProjectFiles.SelectedItems;
+
+            for (int i = 0; i < selectedItems.Count; i++)
+            {
+                string fileName = selectedItems[i].Text;
+                string sourcePath = selectedItems[i].SubItems[3].Text;
+                string sourcePathNoExt = Path.ChangeExtension(sourcePath, "exml");
+
+                FileAttributes attr = File.GetAttributes(sourcePath);
+
+                if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+                {
+                    listViewProjectFiles.Items.Clear();
+                    DirectoryInfo mainDir = new DirectoryInfo(sourcePath);
+                    ListViewItem.ListViewSubItem[] subItems;
+                    ListViewItem item = null;
+
+                    Cursor.Current = Cursors.WaitCursor;
+                    foreach (DirectoryInfo dir in mainDir.GetDirectories())
+                    {
+                        item = new ListViewItem(dir.Name, 0);
+                        subItems = new ListViewItem.ListViewSubItem[]
+                            {
+                                new ListViewItem.ListViewSubItem(item, "Directory"),
+                                new ListViewItem.ListViewSubItem(item, dir.LastAccessTime.ToShortDateString()),
+                                new ListViewItem.ListViewSubItem(item, dir.FullName)
+                            };
+                        item.SubItems.AddRange(subItems);
+                        listViewProjectFiles.Items.Add(item);
+                    }
+                    foreach (FileInfo file in mainDir.GetFiles())
+                    {
+                        item = new ListViewItem(file.Name, 1);
+                        subItems = new ListViewItem.ListViewSubItem[]
+                            {
+                                new ListViewItem.ListViewSubItem(item, "File"),
+                                new ListViewItem.ListViewSubItem(item, file.LastAccessTime.ToShortDateString()),
+                                new ListViewItem.ListViewSubItem(item, file.FullName)
+                            };
+
+                        item.SubItems.AddRange(subItems);
+                        listViewProjectFiles.Items.Add(item);
+                    }
+                    Cursor.Current = Cursors.Default;
+
+                    listViewProjectFiles.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+                }
+                else
+                {
+                    CreateXmlEditor editor = new CreateXmlEditor(this);
+                    NMSTemplate obj = libMBIN.FileIO.LoadMbin(sourcePath);
+                    string exmlCode = EXmlFile.WriteTemplate(obj);
+                    //obj.WriteToExml(sourcePathNoExt);
+                    Scintilla edit = editor.createControl(exmlCode);
+
+                    this.textAreas.Add(fileName, edit);
+                    this.fileLocations.Add(fileName, sourcePath);
+                    this.filesChanged.Add(fileName, false);
+                    createTab(fileName, edit);
+                    break;
+                }
+            }
+        }
+
+        public void createTab(string tabName, Scintilla scintilla)
+        {
+            int? index = searchTabs(tabName);
+            if (index == null)
+            {
+                TabPage newTab = new TabPage();
+                newTab.Text = tabName;
+                newTab.Controls.Add(scintilla);
+                Color col = new Color();
+                col = Color.FromArgb(255, 255, 255, 255);
+                SetTabHeader(newTab, col);
+                tabControl.TabPages.Add(newTab);
+                tabControl.SelectedIndex = tabControl.TabPages.Count - 1;
+            }
+            else
+            {
+                tabControl.SelectedIndex = Convert.ToInt32(index);
+            }
+        }
+
+        private int? searchTabs(string tabName)
+        {
+            int? index = null;
+
+            foreach (TabPage tabPage in tabControl.TabPages)
+            {
+                if (tabPage.Text == tabName)
+                {
+                    index = tabControl.TabPages.IndexOf(tabPage);
+                }
+            }
+
+            return index;
+        }
+
+        private void SetTabHeader(TabPage page, Color color)
+        {
+            TabColors[page] = color;
+            tabControl.Invalidate();
         }
 
         private string newProjectName(string newName)
@@ -791,7 +1288,10 @@ namespace AdvancedModdingStation
                                 {
                                     tabControl.SelectTab(tabControl.TabPages[1]);
                                 }
-                                //TODO: ArgumentNullException
+                                catch (ArgumentNullException)
+                                {
+                                    tabControl.SelectTab(tabControl.TabPages[0]);
+                                }
                             }
                             tabControl.TabPages.Remove(page);
                         }
@@ -866,6 +1366,266 @@ namespace AdvancedModdingStation
             }
         }
 
+        private void CloseProject()
+        {
+            TabControl.TabPageCollection pages = tabControl.TabPages;
+            foreach (TabPage page in pages)
+            {
+                if (page.Text.EndsWith("*"))
+                {
+                    string message = "Would you like to save changes to your project before closing?";
+                    string caption = "Save changes?";
+
+                    DialogResult errorResult = MessageBox.Show(message, caption, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (errorResult == DialogResult.Yes)
+                    {
+                        saveAllMbinFiles();
+                        break;
+                    }
+                }
+            }
+
+            foreach (TabPage page in pages)
+            {
+                if (page.Name == "tabPage1" || page.Name == "tabPage2")
+                {
+                    continue;
+                }
+                else
+                {
+                    tabControl.TabPages.Remove(page);
+                }
+            }
+
+            hideOpenDocumentRequiredControls();
+            hideOpenProjectRequiredControls();
+
+            tabControl.Visible = false;
+            listBoxProjects.Visible = true;
+            labelSelectProject.Visible = true;
+
+            newToolStripMenuItem.Enabled = true;
+            unpackGameFilesToolStripMenuItem.Enabled = true;
+        }
+
+        /// <summary>
+        /// Creates a relative path from one file or folder to another.
+        /// </summary>
+        /// <param name="fromPath">Contains the directory that defines the start of the relative path.</param>
+        /// <param name="toPath">Contains the path that defines the endpoint of the relative path.</param>
+        /// <returns>The relative path from the start directory to the end path or <c>toPath</c> if the paths are not related.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="UriFormatException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static String MakeRelativePath(String fromPath, String toPath)
+        {
+            if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
+            if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
+
+            Uri fromUri = new Uri(fromPath);
+            Uri toUri = new Uri(toPath);
+
+            if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative.
+
+            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+            String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+            if (toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase))
+            {
+                relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            }
+
+            return relativePath;
+        }
+
+        public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+        {
+            Directory.CreateDirectory(target.FullName);
+
+            // Copy each file into the new directory.
+            foreach (FileInfo fi in source.GetFiles())
+            {
+                if (File.Exists(Path.Combine(target.FullName, fi.Name)))
+                {
+                    var confirmResult = MessageBox.Show(fi.Name + " already exists in your project. Do you wish to overwrite it?",
+                        "Overwrite " + fi.Name + "?",
+                                 MessageBoxButtons.YesNo);
+                    if (confirmResult == DialogResult.Yes)
+                    {
+                        fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+                }
+            }
+
+            // Copy each subdirectory using recursion.
+            foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+            {
+                DirectoryInfo nextTargetSubDir =
+                    target.CreateSubdirectory(diSourceSubDir.Name);
+                CopyAll(diSourceSubDir, nextTargetSubDir);
+            }
+        }
+
+        public void setFileEdited()
+        {
+            if (!String.IsNullOrWhiteSpace(activeDocument))
+            {
+                TabPage current = tabControl.SelectedTab;
+                if (!current.Text.EndsWith("*") && tabControl.SelectedIndex > 1)
+                {
+                    this.filesChanged[activeDocument] = true;
+                    current.Text = current.Text + " *";
+                }
+            }
+        }
+
+        private void saveMbinFile()
+        {
+            if (String.IsNullOrEmpty(activeDocument))
+            {
+                return;
+            }
+            string exmlCode = textAreas[activeDocument].Text;
+            string fileSource = fileLocations[activeDocument];
+            try
+            {
+                NMSTemplate obj = EXmlFile.ReadTemplateFromString(exmlCode);
+                obj.WriteToMbin(fileSource);
+            }
+            catch (FormatException)
+            {
+                string errorMessage = this.applicationName + " encountered an error while trying to save " + activeDocument + Environment.NewLine + Environment.NewLine;
+                errorMessage += "Error type: " + MainForm.errorType.Syntax + " (Invalid Value!) " + Environment.NewLine;
+                errorMessage += "Solution: Please make sure you don't put invalid values in your EXML code! (Like a string where an integer expected)";
+                string caption = "Error!";
+
+                MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                return;
+            }
+            string fileName;
+
+            TabPage current = tabControl.SelectedTab;
+            if (current.Text.EndsWith("*"))
+            {
+                fileName = current.Text.Substring(0, current.Text.Length - 2);
+            }
+            else
+            {
+                fileName = current.Text;
+            }
+            current.Text = fileName;
+        }
+
+        private void saveAllMbinFiles()
+        {
+            foreach (KeyValuePair <string, Scintilla> entry in textAreas)
+            {
+                string exmlCode = entry.Value.Text;
+                string fileSource = fileLocations[entry.Key];
+
+                try
+                {
+                    NMSTemplate obj = EXmlFile.ReadTemplateFromString(exmlCode);
+                    obj.WriteToMbin(fileSource);
+                }
+                catch (FormatException)
+                {
+                    string errorMessage = this.applicationName + " encountered an error while trying to save " + activeDocument + Environment.NewLine + Environment.NewLine;
+                    errorMessage += "Error type: " + MainForm.errorType.Syntax + " (Invalid Value!) " + Environment.NewLine;
+                    errorMessage += "Solution: Please make sure you don't put invalid values in your EXML code! (Like a string where an integer expected)";
+                    string caption = "Error!";
+
+                    MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    continue;
+                }
+
+                TabControl.TabPageCollection pages = tabControl.TabPages;
+                foreach (TabPage page in pages)
+                {
+                    if(page.Text.StartsWith(entry.Key) && page.Text.EndsWith("*"))
+                    {
+                        page.Text = entry.Key;
+                    }
+                }
+            }
+        }
+
+        public void GenerateKeystrokes(string keys)
+        {
+            HotKeyManager.Enable = false;
+            textAreas[activeDocument].Focus();
+            SendKeys.Send(keys);
+            HotKeyManager.Enable = true;
+        }
+
+        private void CloseSearch()
+        {
+            if (String.IsNullOrEmpty(activeDocument))
+            {
+                return;
+            }
+            if (SearchIsOpen)
+            {
+                SearchIsOpen = false;
+                PanelSearch.Visible = false;
+            }
+        }
+
+        private bool checkUnpackingInProgress()
+        {
+            if (backgroundWorkerInProgress)
+            {
+                string errorMessage = this.applicationName + " is still busy unpacking your game files. Closing now will give unexpected results next time you launch " + this.applicationName + "!" + Environment.NewLine + Environment.NewLine;
+                errorMessage += "Are you sure you wish to exit now?";
+                string caption = "Unpacking in progress!";
+
+                DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+
+                if (errorResult == DialogResult.OK)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (checkUnpackingInProgress())
+            {
+                if (Application.MessageLoop)
+                {
+                    Application.Exit();
+                }
+                else
+                {
+                    Environment.Exit(1);
+                }
+            }
+            else
+            {
+                e.Cancel = true;
+            }
+        }
+
         public void closeApp()
         {
             Properties.Settings.Default.Save();
@@ -880,8 +1640,33 @@ namespace AdvancedModdingStation
             }
         }
 
-        private void OnApplicationExit(object sender, EventArgs e)
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            AboutForm aboutForm = new AboutForm(this);
+
+            try
+            {
+                aboutForm.ShowDialog(this);
+            }
+            catch (InvalidOperationException ex)
+            {
+                string errorMessage = this.applicationName + " encountered an error while trying to open the About form." + Environment.NewLine + Environment.NewLine;
+                errorMessage += "Error type: " + errorType.Bug + Environment.NewLine;
+                errorMessage += "Solution: Try saving your work and restart " + this.applicationName + ". If that doesn't work, please file a but report including the details below:" + Environment.NewLine + Environment.NewLine;
+                errorMessage += ex.Message;
+                string caption = "Error!";
+
+                DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                if (errorResult == DialogResult.OK)
+                {
+                    aboutForm.Dispose();
+                }
+                else
+                {
+                    aboutForm.Dispose();
+                }
+            }
         }
     }
 }

@@ -28,21 +28,23 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("Paths");
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("Layout");
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("Paths");
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("Layout");
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigForm));
             this.splitContainerConfig = new System.Windows.Forms.SplitContainer();
             this.listViewConfig = new System.Windows.Forms.ListView();
+            this.labelConfigWelcome = new System.Windows.Forms.Label();
+            this.panelConfigPaths = new System.Windows.Forms.Panel();
+            this.textBoxConfigNMSInstall = new System.Windows.Forms.TextBox();
             this.buttonConfigSelectProjects = new System.Windows.Forms.Button();
+            this.labelConfigNMSInstall = new System.Windows.Forms.Label();
             this.buttonConfigSelectUnpacked = new System.Windows.Forms.Button();
+            this.labelConfigProjects = new System.Windows.Forms.Label();
             this.buttonConfigSelectNMSInstall = new System.Windows.Forms.Button();
+            this.labelConfigUnpacked = new System.Windows.Forms.Label();
             this.textBoxConfigProjects = new System.Windows.Forms.TextBox();
             this.textBoxConfigUnpacked = new System.Windows.Forms.TextBox();
-            this.textBoxConfigNMSInstall = new System.Windows.Forms.TextBox();
-            this.labelConfigUnpacked = new System.Windows.Forms.Label();
-            this.labelConfigProjects = new System.Windows.Forms.Label();
-            this.labelConfigNMSInstall = new System.Windows.Forms.Label();
-            this.panelConfigPaths = new System.Windows.Forms.Panel();
-            this.labelConfigWelcome = new System.Windows.Forms.Label();
+            this.buttonConfigResetPaths = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerConfig)).BeginInit();
             this.splitContainerConfig.Panel1.SuspendLayout();
             this.splitContainerConfig.Panel2.SuspendLayout();
@@ -76,11 +78,11 @@
             this.listViewConfig.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.listViewConfig.FullRowSelect = true;
             this.listViewConfig.HideSelection = false;
-            listViewItem1.ToolTipText = "Set the paths that NMS Advanced Mod Manager will use.";
-            listViewItem2.ToolTipText = "Set the layout for NMS Advanced Mod Manager";
+            listViewItem3.ToolTipText = "Set the paths that NMS Advanced Mod Manager will use.";
+            listViewItem4.ToolTipText = "Set the layout for NMS Advanced Mod Manager";
             this.listViewConfig.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2});
+            listViewItem3,
+            listViewItem4});
             this.listViewConfig.Location = new System.Drawing.Point(0, 0);
             this.listViewConfig.MultiSelect = false;
             this.listViewConfig.Name = "listViewConfig";
@@ -90,6 +92,43 @@
             this.listViewConfig.UseCompatibleStateImageBehavior = false;
             this.listViewConfig.View = System.Windows.Forms.View.Tile;
             this.listViewConfig.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listViewConfig_MouseClick);
+            // 
+            // labelConfigWelcome
+            // 
+            this.labelConfigWelcome.AutoSize = true;
+            this.labelConfigWelcome.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelConfigWelcome.Location = new System.Drawing.Point(10, 12);
+            this.labelConfigWelcome.Name = "labelConfigWelcome";
+            this.labelConfigWelcome.Size = new System.Drawing.Size(142, 16);
+            this.labelConfigWelcome.TabIndex = 10;
+            this.labelConfigWelcome.Text = "Welcome Placeholder";
+            // 
+            // panelConfigPaths
+            // 
+            this.panelConfigPaths.Controls.Add(this.buttonConfigResetPaths);
+            this.panelConfigPaths.Controls.Add(this.textBoxConfigNMSInstall);
+            this.panelConfigPaths.Controls.Add(this.buttonConfigSelectProjects);
+            this.panelConfigPaths.Controls.Add(this.labelConfigNMSInstall);
+            this.panelConfigPaths.Controls.Add(this.buttonConfigSelectUnpacked);
+            this.panelConfigPaths.Controls.Add(this.labelConfigProjects);
+            this.panelConfigPaths.Controls.Add(this.buttonConfigSelectNMSInstall);
+            this.panelConfigPaths.Controls.Add(this.labelConfigUnpacked);
+            this.panelConfigPaths.Controls.Add(this.textBoxConfigProjects);
+            this.panelConfigPaths.Controls.Add(this.textBoxConfigUnpacked);
+            this.panelConfigPaths.Location = new System.Drawing.Point(13, 12);
+            this.panelConfigPaths.Name = "panelConfigPaths";
+            this.panelConfigPaths.Size = new System.Drawing.Size(470, 174);
+            this.panelConfigPaths.TabIndex = 9;
+            this.panelConfigPaths.Visible = false;
+            // 
+            // textBoxConfigNMSInstall
+            // 
+            this.textBoxConfigNMSInstall.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxConfigNMSInstall.Location = new System.Drawing.Point(15, 23);
+            this.textBoxConfigNMSInstall.Name = "textBoxConfigNMSInstall";
+            this.textBoxConfigNMSInstall.ReadOnly = true;
+            this.textBoxConfigNMSInstall.Size = new System.Drawing.Size(406, 22);
+            this.textBoxConfigNMSInstall.TabIndex = 3;
             // 
             // buttonConfigSelectProjects
             // 
@@ -102,6 +141,16 @@
             this.buttonConfigSelectProjects.UseVisualStyleBackColor = true;
             this.buttonConfigSelectProjects.Click += new System.EventHandler(this.buttonConfigSelectProjects_Click);
             // 
+            // labelConfigNMSInstall
+            // 
+            this.labelConfigNMSInstall.AutoSize = true;
+            this.labelConfigNMSInstall.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelConfigNMSInstall.Location = new System.Drawing.Point(12, 4);
+            this.labelConfigNMSInstall.Name = "labelConfigNMSInstall";
+            this.labelConfigNMSInstall.Size = new System.Drawing.Size(215, 16);
+            this.labelConfigNMSInstall.TabIndex = 0;
+            this.labelConfigNMSInstall.Text = "No Man\'s Sky installation directory:";
+            // 
             // buttonConfigSelectUnpacked
             // 
             this.buttonConfigSelectUnpacked.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -113,6 +162,16 @@
             this.buttonConfigSelectUnpacked.UseVisualStyleBackColor = true;
             this.buttonConfigSelectUnpacked.Click += new System.EventHandler(this.buttonConfigSelectUnpacked_Click);
             // 
+            // labelConfigProjects
+            // 
+            this.labelConfigProjects.AutoSize = true;
+            this.labelConfigProjects.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelConfigProjects.Location = new System.Drawing.Point(12, 92);
+            this.labelConfigProjects.Name = "labelConfigProjects";
+            this.labelConfigProjects.Size = new System.Drawing.Size(146, 16);
+            this.labelConfigProjects.TabIndex = 1;
+            this.labelConfigProjects.Text = "Your Projects directory:";
+            // 
             // buttonConfigSelectNMSInstall
             // 
             this.buttonConfigSelectNMSInstall.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -123,6 +182,16 @@
             this.buttonConfigSelectNMSInstall.Text = "...";
             this.buttonConfigSelectNMSInstall.UseVisualStyleBackColor = true;
             this.buttonConfigSelectNMSInstall.Click += new System.EventHandler(this.buttonConfigSelectNMSInstall_Click);
+            // 
+            // labelConfigUnpacked
+            // 
+            this.labelConfigUnpacked.AutoSize = true;
+            this.labelConfigUnpacked.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelConfigUnpacked.Location = new System.Drawing.Point(12, 48);
+            this.labelConfigUnpacked.Name = "labelConfigUnpacked";
+            this.labelConfigUnpacked.Size = new System.Drawing.Size(201, 16);
+            this.labelConfigUnpacked.TabIndex = 2;
+            this.labelConfigUnpacked.Text = "Unpacked Game Files directory:";
             // 
             // textBoxConfigProjects
             // 
@@ -142,71 +211,15 @@
             this.textBoxConfigUnpacked.Size = new System.Drawing.Size(406, 22);
             this.textBoxConfigUnpacked.TabIndex = 4;
             // 
-            // textBoxConfigNMSInstall
+            // buttonConfigResetPaths
             // 
-            this.textBoxConfigNMSInstall.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxConfigNMSInstall.Location = new System.Drawing.Point(15, 23);
-            this.textBoxConfigNMSInstall.Name = "textBoxConfigNMSInstall";
-            this.textBoxConfigNMSInstall.ReadOnly = true;
-            this.textBoxConfigNMSInstall.Size = new System.Drawing.Size(406, 22);
-            this.textBoxConfigNMSInstall.TabIndex = 3;
-            // 
-            // labelConfigUnpacked
-            // 
-            this.labelConfigUnpacked.AutoSize = true;
-            this.labelConfigUnpacked.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelConfigUnpacked.Location = new System.Drawing.Point(12, 48);
-            this.labelConfigUnpacked.Name = "labelConfigUnpacked";
-            this.labelConfigUnpacked.Size = new System.Drawing.Size(201, 16);
-            this.labelConfigUnpacked.TabIndex = 2;
-            this.labelConfigUnpacked.Text = "Unpacked Game Files directory:";
-            // 
-            // labelConfigProjects
-            // 
-            this.labelConfigProjects.AutoSize = true;
-            this.labelConfigProjects.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelConfigProjects.Location = new System.Drawing.Point(12, 92);
-            this.labelConfigProjects.Name = "labelConfigProjects";
-            this.labelConfigProjects.Size = new System.Drawing.Size(146, 16);
-            this.labelConfigProjects.TabIndex = 1;
-            this.labelConfigProjects.Text = "Your Projects directory:";
-            // 
-            // labelConfigNMSInstall
-            // 
-            this.labelConfigNMSInstall.AutoSize = true;
-            this.labelConfigNMSInstall.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelConfigNMSInstall.Location = new System.Drawing.Point(12, 4);
-            this.labelConfigNMSInstall.Name = "labelConfigNMSInstall";
-            this.labelConfigNMSInstall.Size = new System.Drawing.Size(215, 16);
-            this.labelConfigNMSInstall.TabIndex = 0;
-            this.labelConfigNMSInstall.Text = "No Man\'s Sky installation directory:";
-            // 
-            // panelConfigPaths
-            // 
-            this.panelConfigPaths.Controls.Add(this.textBoxConfigNMSInstall);
-            this.panelConfigPaths.Controls.Add(this.buttonConfigSelectProjects);
-            this.panelConfigPaths.Controls.Add(this.labelConfigNMSInstall);
-            this.panelConfigPaths.Controls.Add(this.buttonConfigSelectUnpacked);
-            this.panelConfigPaths.Controls.Add(this.labelConfigProjects);
-            this.panelConfigPaths.Controls.Add(this.buttonConfigSelectNMSInstall);
-            this.panelConfigPaths.Controls.Add(this.labelConfigUnpacked);
-            this.panelConfigPaths.Controls.Add(this.textBoxConfigProjects);
-            this.panelConfigPaths.Controls.Add(this.textBoxConfigUnpacked);
-            this.panelConfigPaths.Location = new System.Drawing.Point(13, 12);
-            this.panelConfigPaths.Name = "panelConfigPaths";
-            this.panelConfigPaths.Size = new System.Drawing.Size(470, 150);
-            this.panelConfigPaths.TabIndex = 9;
-            this.panelConfigPaths.Visible = false;
-            // 
-            // labelConfigWelcome
-            // 
-            this.labelConfigWelcome.AutoSize = true;
-            this.labelConfigWelcome.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelConfigWelcome.Location = new System.Drawing.Point(10, 12);
-            this.labelConfigWelcome.Name = "labelConfigWelcome";
-            this.labelConfigWelcome.Size = new System.Drawing.Size(142, 16);
-            this.labelConfigWelcome.TabIndex = 10;
-            this.labelConfigWelcome.Text = "Welcome Placeholder";
+            this.buttonConfigResetPaths.Location = new System.Drawing.Point(380, 139);
+            this.buttonConfigResetPaths.Name = "buttonConfigResetPaths";
+            this.buttonConfigResetPaths.Size = new System.Drawing.Size(75, 23);
+            this.buttonConfigResetPaths.TabIndex = 9;
+            this.buttonConfigResetPaths.Text = "Reset";
+            this.buttonConfigResetPaths.UseVisualStyleBackColor = true;
+            this.buttonConfigResetPaths.Click += new System.EventHandler(this.buttonConfigResetPaths_Click);
             // 
             // ConfigForm
             // 
@@ -214,6 +227,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(748, 450);
             this.Controls.Add(this.splitContainerConfig);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "ConfigForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -244,5 +258,6 @@
         public System.Windows.Forms.TextBox textBoxConfigNMSInstall;
         private System.Windows.Forms.Panel panelConfigPaths;
         private System.Windows.Forms.Label labelConfigWelcome;
+        private System.Windows.Forms.Button buttonConfigResetPaths;
     }
 }

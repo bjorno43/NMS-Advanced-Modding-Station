@@ -211,45 +211,45 @@ namespace AdvancedModdingStation
                 string unpackPath = unpackedDir;
                 PSArcXmlFile.XmlFileType xmlType = PSArcXmlFile.XmlFileType.Extract;
                 PSArcXmlFile gamefilesXML1 = new PSArcXmlFile(xmlType);
-                                gamefilesXML1.OutputFileName = unpackPath;
+                             gamefilesXML1.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML2 = new PSArcXmlFile(xmlType);
-                                gamefilesXML2.OutputFileName = unpackPath;
+                             gamefilesXML2.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML3 = new PSArcXmlFile(xmlType);
-                                gamefilesXML3.OutputFileName = unpackPath;
+                             gamefilesXML3.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML4 = new PSArcXmlFile(xmlType);
-                                gamefilesXML4.OutputFileName = unpackPath;
+                             gamefilesXML4.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML5 = new PSArcXmlFile(xmlType);
-                                gamefilesXML5.OutputFileName = unpackPath;
+                             gamefilesXML5.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML6 = new PSArcXmlFile(xmlType);
-                gamefilesXML6.OutputFileName = unpackPath;
+                             gamefilesXML6.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML7 = new PSArcXmlFile(xmlType);
-                gamefilesXML7.OutputFileName = unpackPath;
+                             gamefilesXML7.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML8 = new PSArcXmlFile(xmlType);
-                gamefilesXML8.OutputFileName = unpackPath;
+                             gamefilesXML8.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML9 = new PSArcXmlFile(xmlType);
-                gamefilesXML9.OutputFileName = unpackPath;
+                             gamefilesXML9.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML10 = new PSArcXmlFile(xmlType);
-                gamefilesXML10.OutputFileName = unpackPath;
+                             gamefilesXML10.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML11 = new PSArcXmlFile(xmlType);
-                gamefilesXML11.OutputFileName = unpackPath;
+                             gamefilesXML11.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML12 = new PSArcXmlFile(xmlType);
-                gamefilesXML12.OutputFileName = unpackPath;
+                             gamefilesXML12.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML13 = new PSArcXmlFile(xmlType);
-                gamefilesXML13.OutputFileName = unpackPath;
+                             gamefilesXML13.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML14 = new PSArcXmlFile(xmlType);
-                gamefilesXML14.OutputFileName = unpackPath;
+                             gamefilesXML14.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML15 = new PSArcXmlFile(xmlType);
-                gamefilesXML15.OutputFileName = unpackPath;
+                             gamefilesXML15.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML16 = new PSArcXmlFile(xmlType);
-                gamefilesXML16.OutputFileName = unpackPath;
+                             gamefilesXML16.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML17 = new PSArcXmlFile(xmlType);
-                gamefilesXML17.OutputFileName = unpackPath;
+                             gamefilesXML17.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML18 = new PSArcXmlFile(xmlType);
-                gamefilesXML18.OutputFileName = unpackPath;
+                             gamefilesXML18.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML19 = new PSArcXmlFile(xmlType);
-                gamefilesXML19.OutputFileName = unpackPath;
+                             gamefilesXML19.OutputFileName = unpackPath;
                 PSArcXmlFile gamefilesXML20 = new PSArcXmlFile(xmlType);
-                gamefilesXML20.OutputFileName = unpackPath;
+                             gamefilesXML20.OutputFileName = unpackPath;
                 int twenty = gameFiles.Length / 20;
                 int counter = 1;
 
@@ -350,7 +350,11 @@ namespace AdvancedModdingStation
                 {
                     BackgroundWorker b = o as BackgroundWorker;
 
+                    form.Invoke((MethodInvoker)(() => form.configToolStripMenuItem.Enabled = false));
                     form.Invoke((MethodInvoker)(() => form.buildToolStripMenuItem.Enabled = false));
+                    form.Invoke((MethodInvoker)(() => form.labelUnpackGameFiles.Visible = false));
+                    form.Invoke((MethodInvoker)(() => form.labelUnpackingInProgress.Visible = true));
+                    form.Invoke((MethodInvoker)(() => form.backgroundWorkerInProgress = true));
 
                     b.ReportProgress(0);
                     psarc.Extract(gamefilesXML1);
@@ -411,6 +415,10 @@ namespace AdvancedModdingStation
                     form.Invoke((MethodInvoker)(() => form.labelInfo.Text = "Ready!"));
                     form.Invoke((MethodInvoker)(() => form.progressBarInfo.Value = 0));
                     form.Invoke((MethodInvoker)(() => form.buildToolStripMenuItem.Enabled = true));
+                    form.Invoke((MethodInvoker)(() => form.configToolStripMenuItem.Enabled = true));
+                    form.Invoke((MethodInvoker)(() => form.labelFirstProject.Visible = true));
+                    form.Invoke((MethodInvoker)(() => form.newToolStripMenuItem.Enabled = true));
+                    form.Invoke((MethodInvoker)(() => form.backgroundWorkerInProgress = false));
                 });
 
                 bw.RunWorkerAsync();

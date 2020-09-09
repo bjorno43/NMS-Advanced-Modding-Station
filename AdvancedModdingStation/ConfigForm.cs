@@ -61,6 +61,17 @@ namespace AdvancedModdingStation
             SelectProjectsDirectory();
         }
 
+        private void buttonConfigResetPaths_Click(object sender, EventArgs e)
+        {
+            MainForm.AddOrUpdateAppSettings("gameDir", "");
+            MainForm.AddOrUpdateAppSettings("unpackedDir", "");
+            MainForm.AddOrUpdateAppSettings("projectsDir", "");
+
+            textBoxConfigNMSInstall.Text = "";
+            textBoxConfigProjects.Text = "";
+            textBoxConfigUnpacked.Text = "";
+        }
+
         private void loadTextBoxes()
         {
             textBoxConfigNMSInstall.Text = ConfigurationManager.AppSettings.Get("gameDir");

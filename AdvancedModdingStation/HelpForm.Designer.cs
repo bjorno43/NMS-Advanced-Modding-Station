@@ -28,13 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("Beginners Guide");
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("Import Existing Mod");
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem("FAQ");
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("Beginners Guide");
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("Import Existing Mod");
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("FAQ");
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HelpForm));
             this.splitContainerHelp = new System.Windows.Forms.SplitContainer();
             this.listViewHelp = new System.Windows.Forms.ListView();
-            this.richTextBoxBeginnersGuide = new System.Windows.Forms.RichTextBox();
             this.richTextBoxImportGuide = new System.Windows.Forms.RichTextBox();
+            this.richTextBoxBeginnersGuide = new System.Windows.Forms.RichTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerHelp)).BeginInit();
             this.splitContainerHelp.Panel1.SuspendLayout();
             this.splitContainerHelp.Panel2.SuspendLayout();
@@ -68,9 +69,9 @@
             this.listViewHelp.FullRowSelect = true;
             this.listViewHelp.HideSelection = false;
             this.listViewHelp.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem4,
-            listViewItem5,
-            listViewItem6});
+            listViewItem1,
+            listViewItem2,
+            listViewItem3});
             this.listViewHelp.Location = new System.Drawing.Point(0, 0);
             this.listViewHelp.MultiSelect = false;
             this.listViewHelp.Name = "listViewHelp";
@@ -80,6 +81,18 @@
             this.listViewHelp.UseCompatibleStateImageBehavior = false;
             this.listViewHelp.View = System.Windows.Forms.View.Tile;
             this.listViewHelp.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listViewHelp_MouseClick);
+            // 
+            // richTextBoxImportGuide
+            // 
+            this.richTextBoxImportGuide.BackColor = System.Drawing.Color.White;
+            this.richTextBoxImportGuide.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.richTextBoxImportGuide.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBoxImportGuide.Location = new System.Drawing.Point(13, 64);
+            this.richTextBoxImportGuide.Name = "richTextBoxImportGuide";
+            this.richTextBoxImportGuide.Size = new System.Drawing.Size(172, 49);
+            this.richTextBoxImportGuide.TabIndex = 1;
+            this.richTextBoxImportGuide.Text = "ImportGuide placeholder";
+            this.richTextBoxImportGuide.Visible = false;
             // 
             // richTextBoxBeginnersGuide
             // 
@@ -94,27 +107,17 @@
             this.richTextBoxBeginnersGuide.Text = "BeginnersGuide placeholder";
             this.richTextBoxBeginnersGuide.Visible = false;
             // 
-            // richTextBoxImportGuide
-            // 
-            this.richTextBoxImportGuide.BackColor = System.Drawing.Color.White;
-            this.richTextBoxImportGuide.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBoxImportGuide.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxImportGuide.Location = new System.Drawing.Point(13, 64);
-            this.richTextBoxImportGuide.Name = "richTextBoxImportGuide";
-            this.richTextBoxImportGuide.Size = new System.Drawing.Size(172, 49);
-            this.richTextBoxImportGuide.TabIndex = 1;
-            this.richTextBoxImportGuide.Text = "ImportGuide placeholder";
-            this.richTextBoxImportGuide.Visible = false;
-            // 
             // HelpForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(748, 450);
             this.Controls.Add(this.splitContainerHelp);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "HelpForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "HelpForm";
             this.splitContainerHelp.Panel1.ResumeLayout(false);
             this.splitContainerHelp.Panel2.ResumeLayout(false);
