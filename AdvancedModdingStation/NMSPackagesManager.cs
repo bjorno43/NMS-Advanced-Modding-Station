@@ -416,6 +416,7 @@ namespace AdvancedModdingStation
                     form.Invoke((MethodInvoker)(() => form.progressBarInfo.Value = 0));
                     form.Invoke((MethodInvoker)(() => form.buildToolStripMenuItem.Enabled = true));
                     form.Invoke((MethodInvoker)(() => form.configToolStripMenuItem.Enabled = true));
+                    form.Invoke((MethodInvoker)(() => form.labelUnpackingInProgress.Visible = false));
                     form.Invoke((MethodInvoker)(() => form.labelFirstProject.Visible = true));
                     form.Invoke((MethodInvoker)(() => form.newToolStripMenuItem.Enabled = true));
                     form.Invoke((MethodInvoker)(() => form.backgroundWorkerInProgress = false));

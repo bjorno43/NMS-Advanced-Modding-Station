@@ -28,6 +28,7 @@ namespace AdvancedModdingStation
             Bug,
             Misconfiguration,
             Syntax,
+            Version,
             Windows
         }
         // public variables
@@ -995,6 +996,45 @@ namespace AdvancedModdingStation
                 else
                 {
                     CreateXmlEditor editor = new CreateXmlEditor(this);
+                    MBINFile mbinFile = new MBINFile(sourcePath);
+                    if (mbinFile.Load())
+                    {
+                        System.Version currentVersion = new System.Version("2.61.1.2");
+                        System.Version fileVersion = mbinFile.Header.GetMBINVersion();
+
+                        switch (fileVersion.CompareTo(currentVersion))
+                        {
+                            case 0:
+                                mbinFile.Dispose();
+                                break;
+                            case 1:
+                            case -1:
+                                if (fileVersion.ToString() == "0.0.0.0")
+                                {
+                                    mbinFile.Dispose();
+                                    break;
+                                }
+                                else
+                                {
+                                    string errorMessage = this.applicationName + " encountered an error while trying to open " + sourcePath + Environment.NewLine + Environment.NewLine;
+                                    errorMessage += "Error type: " + MainForm.errorType.Version + Environment.NewLine;
+                                    errorMessage += "Solution: This file was compiled with a newer or older version of MBINCompiler. Reported version: " + fileVersion.ToString() + Environment.NewLine;
+                                    errorMessage += "Close " + this.applicationName + " and download the appropiate DLL version of MBINCompiler. Make a backup of the DLL present and replace it with the downloaded DLL. Then restart " + this.applicationName;
+                                    string caption = "Error!";
+
+                                    DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                                    if (errorResult == DialogResult.OK)
+                                    {
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        return;
+                                    }
+                                }
+                        }
+                    }
                     NMSTemplate obj = libMBIN.FileIO.LoadMbin(sourcePath);
                     string exmlCode = EXmlFile.WriteTemplate(obj);
                     //obj.WriteToExml(sourcePathNoExt);
