@@ -83,15 +83,11 @@ namespace AdvancedModdingStation
             richTextBoxImportGuide.Clear();
             richTextBoxImportGuide.SelectedText = "Please follow these steps to import an existing mod:" + Environment.NewLine + Environment.NewLine;
             richTextBoxImportGuide.SelectionBullet = true;
-            richTextBoxImportGuide.SelectedText = "Create a new folder inside your Projects folder." + Environment.NewLine;
-            richTextBoxImportGuide.SelectedText = "Name the folder whatever you wish to name your Project." + Environment.NewLine;
-            richTextBoxImportGuide.SelectedText = "Unpack your mod using an external program like PSArc inside the folder you just created." + Environment.NewLine;
+            richTextBoxImportGuide.SelectedText = "Make sure you close your current project first if you haven't done so already." + Environment.NewLine;
+            richTextBoxImportGuide.SelectedText = "Click File => Import => Mod." + Environment.NewLine;
+            richTextBoxImportGuide.SelectedText = "Select your mod package file." + Environment.NewLine;
             richTextBoxImportGuide.SelectionBullet = false;
-            richTextBoxImportGuide.SelectedText = "- Do NOT put decompiled EXML files inside your project folder! " + form.applicationName + " does not work with EXML files!" + Environment.NewLine;
-            richTextBoxImportGuide.SelectedText = "  " + form.applicationName + " works directly with MBIN files instead." + Environment.NewLine;
-            richTextBoxImportGuide.SelectionBullet = true;
-            richTextBoxImportGuide.SelectedText = "After all done, restart " + form.applicationName + ". Your imported mod should now be available as a project.";
-            richTextBoxImportGuide.SelectionBullet = false;
+            richTextBoxImportGuide.SelectedText = form.applicationName + " will automatically create a new project for you with the files from the mod you've imported." + Environment.NewLine;
         }
     }
 }

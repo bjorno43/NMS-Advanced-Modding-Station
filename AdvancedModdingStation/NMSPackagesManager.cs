@@ -18,6 +18,174 @@ namespace AdvancedModdingStation
             this.form = form;
         }
 
+        public void importMod()
+        {
+            string projectsDir = ConfigurationManager.AppSettings.Get("projectsDir");
+
+            if (String.IsNullOrWhiteSpace(projectsDir))
+            {
+                string errorMessage = this.form.applicationName + " encountered an error while trying to read your Projects directory setting." + Environment.NewLine + Environment.NewLine;
+                errorMessage += "Error type: " + MainForm.errorType.Misconfiguration + Environment.NewLine;
+                errorMessage += "Solution: Please go to Config => Settings and setup your Paths before attempting to import a mod." + Environment.NewLine;
+                string caption = "Error!";
+
+                DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                if (errorResult == DialogResult.OK)
+                {
+                    return;
+                }
+            }
+
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.InitialDirectory = projectsDir;
+                openFileDialog.Filter = "Game Packages (*.pak)|*.pak|All Files (*.*)|*.*";
+                openFileDialog.FilterIndex = 2;
+                openFileDialog.RestoreDirectory = true;
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string filePath = openFileDialog.FileName;
+
+                    if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+                    {
+                        string fileName = Path.GetFileNameWithoutExtension(filePath);
+
+                        if (Directory.Exists(projectsDir + "\\" + fileName))
+                        {
+                            string errorMessage = "A project with the name " + fileName + " already exists. Do you wish to delete its contents and proceed with importing the mod?";
+                            string caption = "Project already exists!";
+
+                            DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                            if(errorResult == DialogResult.Yes)
+                            {
+                                // Directory not empty. Lets remove everything before proceding
+                                DirectoryInfo di = new DirectoryInfo(projectsDir + "\\" + fileName);
+                                string[] oldFiles = Directory.GetFiles(projectsDir + "\\" + fileName, "*.*", SearchOption.AllDirectories);
+                                double percentagePerFile = 100.0 / oldFiles.Length;
+                                double currentProgressPercentage = 0.0;
+
+                                form.labelInfo.Text = "Deleting old project files..";
+                                foreach (FileInfo file in di.EnumerateFiles())
+                                {
+                                    file.Delete();
+                                    currentProgressPercentage += percentagePerFile;
+                                    form.progressBarInfo.Value = (int)Math.Round(currentProgressPercentage, MidpointRounding.AwayFromZero);
+                                }
+
+                                form.labelInfo.Text = "Deleting old project directories..";
+                                foreach (DirectoryInfo dir in di.EnumerateDirectories())
+                                {
+                                    dir.Delete(true);
+                                }
+                                form.progressBarInfo.Value = 0;
+                                form.labelInfo.Text = "Ready!";
+                            }
+                            else
+                            {
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(projectsDir + "\\" + fileName);
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                                string errorMessage = this.form.applicationName + " encountered an error while trying to create your Project directory (it doesn't exist yet)." + Environment.NewLine + Environment.NewLine;
+                                errorMessage += "Error type: " + MainForm.errorType.Windows + " (Access denied!) " + Environment.NewLine;
+                                errorMessage += "Solution: Please make sure you have full read / write access to " + projectsDir;
+                                string caption = "Error!";
+
+                                DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+
+                                if (errorResult == DialogResult.Retry)
+                                {
+                                    importMod();
+                                }
+                                else
+                                {
+                                    return;
+                                }
+                            }
+                            catch (PathTooLongException)
+                            {
+                                string errorMessage = this.form.applicationName + " encountered an error while trying to create your Project directory (it doesn't exist yet)." + Environment.NewLine + Environment.NewLine;
+                                errorMessage += "Error type: " + MainForm.errorType.Windows + " (Path too long!) " + Environment.NewLine;
+                                errorMessage += "Solution: Please use a short path for your Projects directory. For example: C:\\NMSAdvancedModdingStation\\Projects";
+                                string caption = "Error!";
+
+                                DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+
+                                if (errorResult == DialogResult.Retry)
+                                {
+                                    importMod();
+                                }
+                                else
+                                {
+                                    return;
+                                }
+                            }
+                        }
+
+                        PSArcXmlFile.XmlFileType xmlType = PSArcXmlFile.XmlFileType.Extract;
+                        PSArcXmlFile modfilesXML = new PSArcXmlFile(xmlType);
+                        modfilesXML.OutputFileName = projectsDir + "\\" + fileName;
+                        modfilesXML.AddPakToExtract(filePath);
+
+                        PSArc psarc = new PSArc();
+
+                        BackgroundWorker bw = new BackgroundWorker();
+
+                        // this allows our worker to report progress during work
+                        bw.WorkerReportsProgress = true;
+
+                        // what to do in the background thread
+                        bw.DoWork += new DoWorkEventHandler(
+                        delegate (object o, DoWorkEventArgs args)
+                        {
+                            BackgroundWorker b = o as BackgroundWorker;
+
+                            b.ReportProgress(0);
+                            psarc.Extract(modfilesXML);
+                            b.ReportProgress(100);
+                        });
+
+                        // what to do when progress changed (update the progress bar for example)
+                        bw.ProgressChanged += new ProgressChangedEventHandler(
+                        delegate (object o, ProgressChangedEventArgs args)
+                        {
+                            form.Invoke((MethodInvoker)(() => form.labelInfo.Text = String.Format("Unpacking Mod {0}%...", args.ProgressPercentage)));
+                            form.Invoke((MethodInvoker)(() => form.progressBarInfo.Value = args.ProgressPercentage));
+                        });
+
+                        // what to do when worker completes its task (notify the user)
+                        bw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(
+                        delegate (object o, RunWorkerCompletedEventArgs args)
+                        {
+                            form.Invoke((MethodInvoker)(() => form.labelInfo.Text = "Ready!"));
+                            form.Invoke((MethodInvoker)(() => form.progressBarInfo.Value = 0));
+                            form.Invoke((MethodInvoker)(() => form.loadProjectNames()));
+                        });
+
+                        bw.RunWorkerAsync();
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
+
         public void unpackGamePackages()
         {
             string unpackedDir = ConfigurationManager.AppSettings.Get("unpackedDir");
@@ -67,7 +235,7 @@ namespace AdvancedModdingStation
                 }
                 catch (PathTooLongException)
                 {
-                    string errorMessage = this.form.applicationName + " encountered an error while trying to create your Unpacked Game Files directory it doesn't exist yet)." + Environment.NewLine + Environment.NewLine;
+                    string errorMessage = this.form.applicationName + " encountered an error while trying to create your Unpacked Game Files directory (it doesn't exist yet)." + Environment.NewLine + Environment.NewLine;
                     errorMessage += "Error type: " + MainForm.errorType.Windows + " (Path too long!) " + Environment.NewLine;
                     errorMessage += "Solution: Please use a short path for your Unpacked Game Files directory. For example: C:\\NMSAdvancedModdingStation\\Unpacked";
                     string caption = "Error!";

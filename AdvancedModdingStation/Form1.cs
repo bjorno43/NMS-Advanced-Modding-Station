@@ -475,6 +475,12 @@ namespace AdvancedModdingStation
             }
         }
 
+        private void modToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            NMSPackagesManager manager = new NMSPackagesManager(this);
+            manager.importMod();
+        }
+
         private void contextMenuStripGameFiles_Opened(object sender, CancelEventArgs e)
         {
             if (listViewGameFiles.SelectedIndices.Count < 1)
@@ -666,6 +672,7 @@ namespace AdvancedModdingStation
         private void hideConfigRequiredControls()
         {
             newToolStripMenuItem.Enabled = false;
+            importToolStripMenuItem.Enabled = false;
             buildToolStripMenuItem.Enabled = false;
         }
 
@@ -680,6 +687,7 @@ namespace AdvancedModdingStation
             {
                 labelUnpackGameFiles.Visible = true;
             }
+            importToolStripMenuItem.Enabled = true;
             buildToolStripMenuItem.Enabled = true;
         }
 
@@ -706,6 +714,7 @@ namespace AdvancedModdingStation
             closeToolStripMenuItem.Enabled = true;
             buildProjectToolStripMenuItem.Enabled = true;
             newToolStripMenuItem.Enabled = false;
+            importToolStripMenuItem.Enabled = false;
         }
 
         public void hideOpenDocumentRequiredControls()
@@ -775,13 +784,14 @@ namespace AdvancedModdingStation
             }
         }
 
-        private void loadProjectNames()
+        public void loadProjectNames()
         {
             string dir = ConfigurationManager.AppSettings.Get("projectsDir");
             labelFirstProject.Visible = false;
             try
             {
                 string[] subdirs = Directory.GetDirectories(dir).Select(Path.GetFileName).ToArray();
+                listBoxProjects.Items.Clear();
 
                 for (int i = 0; i < subdirs.Length; i++)
                 {
@@ -1446,6 +1456,7 @@ namespace AdvancedModdingStation
             labelSelectProject.Visible = true;
 
             newToolStripMenuItem.Enabled = true;
+            importToolStripMenuItem.Enabled = true;
             unpackGameFilesToolStripMenuItem.Enabled = true;
         }
 

@@ -103,12 +103,14 @@
             this.labelSelectProject = new System.Windows.Forms.Label();
             this.labelUnpackingInProgress = new System.Windows.Forms.Label();
             this.PanelSearch = new System.Windows.Forms.Panel();
-            this.textBoxSearch = new System.Windows.Forms.TextBox();
-            this.labelUnpackGameFiles = new System.Windows.Forms.Label();
-            this.labelFirstProject = new System.Windows.Forms.Label();
             this.BtnCloseSearch = new System.Windows.Forms.Button();
             this.BtnNextSearch = new System.Windows.Forms.Button();
             this.BtnPrevSearch = new System.Windows.Forms.Button();
+            this.textBoxSearch = new System.Windows.Forms.TextBox();
+            this.labelUnpackGameFiles = new System.Windows.Forms.Label();
+            this.labelFirstProject = new System.Windows.Forms.Label();
+            this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.modToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStripMain.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -172,6 +174,7 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newToolStripMenuItem,
+            this.importToolStripMenuItem,
             this.closeToolStripMenuItem,
             this.toolStripSeparator6,
             this.saveToolStripMenuItem,
@@ -187,13 +190,13 @@
             this.newToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.projectToolStripMenuItem2});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newToolStripMenuItem.Text = "New";
             // 
             // projectToolStripMenuItem2
             // 
             this.projectToolStripMenuItem2.Name = "projectToolStripMenuItem2";
-            this.projectToolStripMenuItem2.Size = new System.Drawing.Size(111, 22);
+            this.projectToolStripMenuItem2.Size = new System.Drawing.Size(180, 22);
             this.projectToolStripMenuItem2.Text = "Project";
             this.projectToolStripMenuItem2.Click += new System.EventHandler(this.projectToolStripMenuItem2_Click);
             // 
@@ -203,33 +206,33 @@
             this.fileToolStripMenuItem1,
             this.projectToolStripMenuItem1});
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.closeToolStripMenuItem.Text = "Close";
             // 
             // fileToolStripMenuItem1
             // 
             this.fileToolStripMenuItem1.Name = "fileToolStripMenuItem1";
-            this.fileToolStripMenuItem1.Size = new System.Drawing.Size(111, 22);
+            this.fileToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
             this.fileToolStripMenuItem1.Text = "File";
             this.fileToolStripMenuItem1.Click += new System.EventHandler(this.fileToolStripMenuItem1_Click);
             // 
             // projectToolStripMenuItem1
             // 
             this.projectToolStripMenuItem1.Name = "projectToolStripMenuItem1";
-            this.projectToolStripMenuItem1.Size = new System.Drawing.Size(111, 22);
+            this.projectToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
             this.projectToolStripMenuItem1.Text = "Project";
             this.projectToolStripMenuItem1.Click += new System.EventHandler(this.projectToolStripMenuItem1_Click);
             // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(175, 6);
+            this.toolStripSeparator6.Size = new System.Drawing.Size(177, 6);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -238,19 +241,19 @@
             this.saveAllToolStripMenuItem.Name = "saveAllToolStripMenuItem";
             this.saveAllToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
             | System.Windows.Forms.Keys.S)));
-            this.saveAllToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.saveAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveAllToolStripMenuItem.Text = "Save All";
             this.saveAllToolStripMenuItem.Click += new System.EventHandler(this.saveAllToolStripMenuItem_Click);
             // 
             // toolStripSeparator7
             // 
             this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(175, 6);
+            this.toolStripSeparator7.Size = new System.Drawing.Size(177, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -523,14 +526,14 @@
             // helpMenuToolStripMenuItem
             // 
             this.helpMenuToolStripMenuItem.Name = "helpMenuToolStripMenuItem";
-            this.helpMenuToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.helpMenuToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.helpMenuToolStripMenuItem.Text = "Help Menu";
             this.helpMenuToolStripMenuItem.Click += new System.EventHandler(this.helpMenuToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -761,36 +764,6 @@
             this.PanelSearch.TabIndex = 9;
             this.PanelSearch.Visible = false;
             // 
-            // textBoxSearch
-            // 
-            this.textBoxSearch.Location = new System.Drawing.Point(6, 9);
-            this.textBoxSearch.Name = "textBoxSearch";
-            this.textBoxSearch.Size = new System.Drawing.Size(189, 20);
-            this.textBoxSearch.TabIndex = 0;
-            this.textBoxSearch.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxSearch_KeyDown);
-            // 
-            // labelUnpackGameFiles
-            // 
-            this.labelUnpackGameFiles.AutoSize = true;
-            this.labelUnpackGameFiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelUnpackGameFiles.Location = new System.Drawing.Point(770, 391);
-            this.labelUnpackGameFiles.Name = "labelUnpackGameFiles";
-            this.labelUnpackGameFiles.Size = new System.Drawing.Size(574, 24);
-            this.labelUnpackGameFiles.TabIndex = 10;
-            this.labelUnpackGameFiles.Text = "Please click Build => Unpack Game Files and wait for it to complete.";
-            this.labelUnpackGameFiles.Visible = false;
-            // 
-            // labelFirstProject
-            // 
-            this.labelFirstProject.AutoSize = true;
-            this.labelFirstProject.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelFirstProject.Location = new System.Drawing.Point(760, 300);
-            this.labelFirstProject.Name = "labelFirstProject";
-            this.labelFirstProject.Size = new System.Drawing.Size(524, 24);
-            this.labelFirstProject.TabIndex = 11;
-            this.labelFirstProject.Text = "Please click File => New => Project to create your first project.";
-            this.labelFirstProject.Visible = false;
-            // 
             // BtnCloseSearch
             // 
             this.BtnCloseSearch.FlatAppearance.BorderSize = 0;
@@ -826,6 +799,51 @@
             this.BtnPrevSearch.TabIndex = 1;
             this.BtnPrevSearch.UseVisualStyleBackColor = true;
             this.BtnPrevSearch.Click += new System.EventHandler(this.BtnPrevSearch_Click);
+            // 
+            // textBoxSearch
+            // 
+            this.textBoxSearch.Location = new System.Drawing.Point(6, 9);
+            this.textBoxSearch.Name = "textBoxSearch";
+            this.textBoxSearch.Size = new System.Drawing.Size(189, 20);
+            this.textBoxSearch.TabIndex = 0;
+            this.textBoxSearch.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxSearch_KeyDown);
+            // 
+            // labelUnpackGameFiles
+            // 
+            this.labelUnpackGameFiles.AutoSize = true;
+            this.labelUnpackGameFiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelUnpackGameFiles.Location = new System.Drawing.Point(770, 391);
+            this.labelUnpackGameFiles.Name = "labelUnpackGameFiles";
+            this.labelUnpackGameFiles.Size = new System.Drawing.Size(574, 24);
+            this.labelUnpackGameFiles.TabIndex = 10;
+            this.labelUnpackGameFiles.Text = "Please click Build => Unpack Game Files and wait for it to complete.";
+            this.labelUnpackGameFiles.Visible = false;
+            // 
+            // labelFirstProject
+            // 
+            this.labelFirstProject.AutoSize = true;
+            this.labelFirstProject.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelFirstProject.Location = new System.Drawing.Point(760, 300);
+            this.labelFirstProject.Name = "labelFirstProject";
+            this.labelFirstProject.Size = new System.Drawing.Size(524, 24);
+            this.labelFirstProject.TabIndex = 11;
+            this.labelFirstProject.Text = "Please click File => New => Project to create your first project.";
+            this.labelFirstProject.Visible = false;
+            // 
+            // importToolStripMenuItem
+            // 
+            this.importToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.modToolStripMenuItem});
+            this.importToolStripMenuItem.Name = "importToolStripMenuItem";
+            this.importToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.importToolStripMenuItem.Text = "Import";
+            // 
+            // modToolStripMenuItem
+            // 
+            this.modToolStripMenuItem.Name = "modToolStripMenuItem";
+            this.modToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.modToolStripMenuItem.Text = "Mod";
+            this.modToolStripMenuItem.Click += new System.EventHandler(this.modToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -952,6 +970,8 @@
         public System.Windows.Forms.ToolStripMenuItem expandAllToolStripMenuItem;
         public System.Windows.Forms.Panel PanelSearch;
         public System.Windows.Forms.TextBox textBoxSearch;
+        private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem modToolStripMenuItem;
     }
 }
 
