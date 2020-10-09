@@ -13,6 +13,8 @@ namespace AdvancedModdingStation
     class NMSPackagesManager
     {
         MainForm form;
+        ErrorMessages em = new ErrorMessages();
+
         public NMSPackagesManager(MainForm form)
         {
             this.form = form;
@@ -24,12 +26,10 @@ namespace AdvancedModdingStation
 
             if (String.IsNullOrWhiteSpace(projectsDir))
             {
-                string errorMessage = this.form.applicationName + " encountered an error while trying to read your Projects directory setting." + Environment.NewLine + Environment.NewLine;
-                errorMessage += "Error type: " + MainForm.errorType.Misconfiguration + Environment.NewLine;
-                errorMessage += "Solution: Please go to Config => Settings and setup your Paths before attempting to import a mod." + Environment.NewLine;
+                em.ErrorMessageInBox();
                 string caption = "Error!";
 
-                DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DialogResult errorResult = MessageBox.Show(em.ErrorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 if (errorResult == DialogResult.OK)
                 {
