@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AdvancedModdingStation
@@ -20,7 +13,7 @@ namespace AdvancedModdingStation
             InitializeComponent();
             this.form = form;
 
-            labelConfigWelcome.Text = "This is " + form.applicationName + "'s configuration panel."+ Environment.NewLine +" Here you can set up the folder paths that " + form.applicationName + Environment.NewLine +" needs in order to function properly and change its layout. "+ Environment.NewLine + Environment.NewLine + " Other features might be added in the future as well.";
+            labelConfigWelcome.Text = "This is " + form.applicationName + "'s configuration panel." + Environment.NewLine + " Here you can set up the folder paths that " + form.applicationName + Environment.NewLine + " needs in order to function properly and change its layout. " + Environment.NewLine + Environment.NewLine + " Other features might be added in the future as well.";
 
             loadTextBoxes();
         }
@@ -32,17 +25,8 @@ namespace AdvancedModdingStation
             for (int i = 0; i < items.Count; i++)
             {
                 string itemName = items[i].Text;
-
-                if(itemName.Equals("Paths", StringComparison.OrdinalIgnoreCase))
-                {
-                    panelConfigPaths.Visible = true;
-                    labelConfigWelcome.Visible = false;
-                }
-                else
-                {
-                    panelConfigPaths.Visible = false;
-                    labelConfigWelcome.Visible = true;
-                }
+                panelConfigPaths.Visible = itemName.Equals("Paths", StringComparison.OrdinalIgnoreCase);
+                labelConfigWelcome.Visible = !itemName.Equals("Paths", StringComparison.OrdinalIgnoreCase); ;
             }
         }
 
