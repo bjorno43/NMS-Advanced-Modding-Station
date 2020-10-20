@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Serialization;
 
 namespace AdvancedModdingStation
 {
@@ -30,36 +27,18 @@ namespace AdvancedModdingStation
         private string outputFileName;
         private string inputDirectory;
 
-        public string OutputDirectory
-        {
-            get
-            {
-                return Path.GetDirectoryName(OutputFileName);
-            }
-        }
+        public string OutputDirectory => Path.GetDirectoryName(OutputFileName);
 
         public string OutputFileName
         {
-            get
-            {
-                return outputFileName;
-            }
-            set
-            {
-                outputFileName = Path.GetFullPath(value);
-            }
+            get => outputFileName;
+            set => outputFileName = Path.GetFullPath(value);
         }
 
         public string InputDirectory
         {
-            get
-            {
-                return inputDirectory;
-            }
-            set
-            {
-                inputDirectory = Path.GetFullPath(value);
-            }
+            get => inputDirectory;
+            set => inputDirectory = Path.GetFullPath(value);
         }
 
         public PSArcXmlFile(XmlFileType type)

@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace AdvancedModdingStation
 {
     public partial class AboutForm : Form
     {
-        MainForm form;
-
-        public AboutForm(MainForm form)
+        public AboutForm(string applicationName)
         {
             InitializeComponent();
 
-            this.form = form;
-            labelAbout.Text = form.applicationName + Environment.NewLine + Environment.NewLine
+            labelAbout.Text = applicationName + Environment.NewLine + Environment.NewLine
                 + string.Join(Environment.NewLine, new List<string> {
              "Author: Bjorn van de Peut (icecub)",
              "Version: 0.0.1 (Alpha)",
@@ -35,7 +31,6 @@ namespace AdvancedModdingStation
              "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,",
              "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE",
              "SOFTWARE."});
-
         }
     }
 }

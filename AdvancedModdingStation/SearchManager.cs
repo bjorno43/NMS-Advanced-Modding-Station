@@ -10,10 +10,10 @@ namespace AdvancedModdingStation
 {
     internal class SearchManager
     {
-        public static ScintillaNET.Scintilla TextArea;
+        public static Scintilla TextArea;
         public static TextBox SearchBox;
 
-        public static string LastSearch = "";
+        public static string LastSearch = string.Empty;
 
         public static int LastSearchIndex;
 

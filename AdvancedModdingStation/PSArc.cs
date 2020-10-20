@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AdvancedModdingStation
 {
@@ -47,53 +43,58 @@ namespace AdvancedModdingStation
 
         public void Create(string outputPath, string inputPath, params string[] inputFiles)
         {
-            PSArcXmlFile xml = new PSArcXmlFile(PSArcXmlFile.XmlFileType.Create | PSArcXmlFile.XmlFileType.ByFile);
-            xml.OutputFileName = outputPath;
-            xml.InputDirectory = inputPath;
+            PSArcXmlFile xml = new PSArcXmlFile(PSArcXmlFile.XmlFileType.Create | PSArcXmlFile.XmlFileType.ByFile)
+            {
+                OutputFileName = outputPath, InputDirectory = inputPath
+            };
             foreach (string s in inputFiles)
             {
                 xml.AddFileToPack(s);
             }
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
-            logAndUpdate("Starting PSARC.", currentOpItemCount, currentOpTotalItems);
+            LogAndUpdate("Starting PSARC.", currentOpItemCount, currentOpTotalItems);
             string outputMsg = executeWithXml(writeXmlToFile(xml));
             CreateCommandComplete?.Invoke(new CreateCommandEventArgs(outputMsg));
-            logAndUpdate("Done.", 0, 0);
+            LogAndUpdate("Done.", 0, 0);
         }
 
         public void Create(string outputPath, string inputDirectory)
         {
-            PSArcXmlFile xml = new PSArcXmlFile(PSArcXmlFile.XmlFileType.Create | PSArcXmlFile.XmlFileType.ByFile);
-            xml.OutputFileName = outputPath;
-            xml.InputDirectory = inputDirectory;
-            foreach (string s in getFiles(inputDirectory))
+            PSArcXmlFile xml = new PSArcXmlFile(PSArcXmlFile.XmlFileType.Create | PSArcXmlFile.XmlFileType.ByFile)
             {
-                xml.AddFileToPack(s);
-            }
+                OutputFileName = outputPath, InputDirectory = inputDirectory
+            };
+
+            foreach (string fileName in GetFiles(inputDirectory))
+                xml.AddFileToPack(fileName);
+
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
-            logAndUpdate("Starting PSARC.", currentOpItemCount, currentOpTotalItems);
+            LogAndUpdate("Starting PSARC.", currentOpItemCount, currentOpTotalItems);
             string outputMsg = executeWithXml(writeXmlToFile(xml));
             CreateCommandComplete?.Invoke(new CreateCommandEventArgs(outputMsg));
-            logAndUpdate("Done.", 0, 0);
+            LogAndUpdate("Done.", 0, 0);
         }
 
         public void Extract(string inputFile, string outputDir)
         {
-            PSArcXmlFile xml = new PSArcXmlFile(PSArcXmlFile.XmlFileType.Extract);
-            xml.OutputFileName = outputDir;
+            PSArcXmlFile xml = new PSArcXmlFile(PSArcXmlFile.XmlFileType.Extract)
+            {
+                OutputFileName = outputDir
+            };
             xml.AddPakToExtract(inputFile);
             Extract(xml);
         }
 
         public void Extract(string inputFile, string outputDir, params string[] archiveFiles)
         {
-            PSArcXmlFile xml = new PSArcXmlFile(PSArcXmlFile.XmlFileType.Extract | PSArcXmlFile.XmlFileType.ByFile);
-            xml.OutputFileName = outputDir;
+            PSArcXmlFile xml = new PSArcXmlFile(PSArcXmlFile.XmlFileType.Extract | PSArcXmlFile.XmlFileType.ByFile)
+            {
+                OutputFileName = outputDir
+            };
             xml.AddPakToExtract(inputFile);
             foreach (string s in archiveFiles)
-            {
                 xml.AddFileToExtract(s);
-            }
+
             Extract(xml);
         }
 
@@ -106,7 +107,7 @@ namespace AdvancedModdingStation
         {
             string output = executeWithXml(xmlFile);
             ExtractCommandComplete?.Invoke(new ExtractCommandEventArgs(output));
-            logAndUpdate("Done.", 0, 0);
+            LogAndUpdate("Done.", 0, 0);
         }
 
         public ICollection<string> List(string inputFile)
@@ -121,20 +122,11 @@ namespace AdvancedModdingStation
                 if (outputLines[i].Length > 0)
                     fileNames.Add(outputLines[i].Substring(0, outputLines[i].IndexOf(' ')).Trim('\r'));
             }
+
             ListCommandComplete?.Invoke(new ListCommandEventArgs(outputMsg, fileNames));
-            logAndUpdate("Done.", 0, 0);
+            LogAndUpdate("Done.", 0, 0);
             return fileNames;
         }
-
-        //public void Dump()
-        //{
-
-        //}
-
-        //public void Dtd()
-        //{
-
-        //}
 
         private string executeWithXml(string xmlFile)
         {
@@ -146,13 +138,11 @@ namespace AdvancedModdingStation
         private string executeCommandLine(string args)
         {
             string outputMsg = string.Empty;
-            Process p = new Process();
-            p.StartInfo = getProcessStartInfo(args);
-
-            p.Start();
-            //outputMsg = p.StandardOutput.ReadToEnd();
+            var process = new Process { StartInfo = getProcessStartInfo(args) };
+            process.Start();
+            //outputMsg = process.StandardOutput.ReadToEnd();
             //Console.WriteLine(outputMsg);
-            p.WaitForExit();
+            process.WaitForExit();
             return outputMsg;
         }
 
@@ -173,23 +163,23 @@ namespace AdvancedModdingStation
 
         private ProcessStartInfo getProcessStartInfo(string args = "")
         {
-            var path = Path.GetTempFileName() + ".exe"; // Actually PSARC.EXE, but we just call it something random just cause.
+            // Actually PSARC.EXE, but we just call it something random just cause.
+            var path = Path.GetTempFileName() + ".exe"; 
             File.WriteAllBytes(path, Properties.Resources.psarc);
-            ProcessStartInfo psInfo = new ProcessStartInfo(path);
-            psInfo.CreateNoWindow = true;
-            //psInfo.RedirectStandardOutput = true;
-            psInfo.UseShellExecute = false;
-            psInfo.Arguments = args;
-            psInfo.WorkingDirectory = Environment.CurrentDirectory;
+            var psInfo = new ProcessStartInfo(path)
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                Arguments = args,
+                WorkingDirectory = Environment.CurrentDirectory
+            };
             return psInfo;
         }
 
-        private string[] getFiles(string path)
-        {
-            return Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
-        }
+        private static IEnumerable<string> GetFiles(string path) => 
+            Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
 
-        private void logAndUpdate(string msg, int itemsComplete, int totalItems)
+        private void LogAndUpdate(string msg, int itemsComplete, int totalItems)
         {
             Logger?.Write($"[{DateTime.Now}] {msg}");
             ProgressUpdated?.Invoke(new ProgressUpdateEventArgs(msg, itemsComplete, totalItems));
