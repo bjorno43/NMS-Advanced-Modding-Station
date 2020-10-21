@@ -2,18 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using libMBIN;
 using ScintillaNET;
 using System.Linq;
 using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.ApplicationServices;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using AdvancedModdingStation.Properties;
 using System.Diagnostics;
@@ -51,12 +46,12 @@ namespace AdvancedModdingStation
         {
             InitializeComponent();
 
-            contextMenuStripGameFiles.Opening += new CancelEventHandler(contextMenuStripGameFiles_Opened);
-            tabControl.Deselecting += new TabControlCancelEventHandler(tabControl_Deselecting);
-            tabControl.Selecting += new TabControlCancelEventHandler(tabControl_Selecting);
-            tabControl.DrawItem += new DrawItemEventHandler(DrawOnTab);
+            contextMenuStripGameFiles.Opening += contextMenuStripGameFiles_Opened;
+            tabControl.Deselecting += tabControl_Deselecting;
+            tabControl.Selecting += tabControl_Selecting;
+            tabControl.DrawItem += DrawOnTab;
 
-            this.Resize += new EventHandler(Form1_Resize);
+            this.Resize += Form1_Resize;
             this.backgroundWorkerInProgress = false;
             this.SearchIsOpen = false;
 
@@ -69,15 +64,14 @@ namespace AdvancedModdingStation
 
             TabPage page0 = tabControl.TabPages[0];
             TabPage page1 = tabControl.TabPages[1];
-            Color col = new Color();
-            col = Color.FromArgb(255, 255, 255, 255);
-            SetTabHeader(page0, col);
-            SetTabHeader(page1, col);
+            var color = Color.FromArgb(255, 255, 255, 255);
+            SetTabHeader(page0, color);
+            SetTabHeader(page1, color);
 
             // Set initial variables
             setInitialVariables();
 
-            positionElements();
+            PositionElements();
 
             checkConfigurationSet();
 
@@ -95,16 +89,9 @@ namespace AdvancedModdingStation
             fileOperator = new FileOperations(this);
         }
 
-        private void Form1_Resize(object sender, System.EventArgs e)
-        {
-            // Position elements
-            positionElements();
-        }
+        private void Form1_Resize(object sender, EventArgs e) => PositionElements();
 
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            showConfigurationForm();
-        }
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e) => ShowConfigForm();
 
         private void projectToolStripMenuItem2_Click(object sender, EventArgs e)
         {
@@ -258,16 +245,18 @@ namespace AdvancedModdingStation
             listViewProjectFiles.Items.Clear();
             DirectoryInfo nodeDirInfo = (DirectoryInfo)newSelected.Tag;
             ListViewItem.ListViewSubItem[] subItems;
-            ListViewItem item = null;
+            ListViewItem item;
 
             Cursor.Current = Cursors.WaitCursor;
             foreach (DirectoryInfo dir in nodeDirInfo.GetDirectories())
             {
                 item = new ListViewItem(dir.Name, 0);
-                subItems = new ListViewItem.ListViewSubItem[]
-                    {new ListViewItem.ListViewSubItem(item, "Directory"),
-             new ListViewItem.ListViewSubItem(item, dir.LastAccessTime.ToShortDateString()),
-                    new ListViewItem.ListViewSubItem(item, dir.FullName)};
+                subItems = new[] 
+                {
+                    new ListViewItem.ListViewSubItem(item, "Directory"),
+                    new ListViewItem.ListViewSubItem(item, dir.LastAccessTime.ToShortDateString()),
+                    new ListViewItem.ListViewSubItem(item, dir.FullName)
+                };
                 item.SubItems.AddRange(subItems);
                 listViewProjectFiles.Items.Add(item);
             }
@@ -278,11 +267,12 @@ namespace AdvancedModdingStation
                 if (fileExt.Equals(".mbin", StringComparison.OrdinalIgnoreCase))
                 {
                     item = new ListViewItem(file.Name, 1);
-                    subItems = new ListViewItem.ListViewSubItem[]
-                        { new ListViewItem.ListViewSubItem(item, "File"),
-                 new ListViewItem.ListViewSubItem(item, file.LastAccessTime.ToShortDateString()),
-                        new ListViewItem.ListViewSubItem(item, file.FullName)};
-
+                    subItems = new[]
+                    { 
+                        new ListViewItem.ListViewSubItem(item, "File"),
+                        new ListViewItem.ListViewSubItem(item, file.LastAccessTime.ToShortDateString()),
+                        new ListViewItem.ListViewSubItem(item, file.FullName)
+                    };
                     item.SubItems.AddRange(subItems);
                     listViewProjectFiles.Items.Add(item);
                 }
@@ -411,27 +401,17 @@ namespace AdvancedModdingStation
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (checkUnpackingInProgress())
-            {
-                if (Application.MessageLoop)
-                {
-                    Application.Exit();
-                }
-                else
-                {
-                    Environment.Exit(1);
-                }
-            }
+            if (checkUnpackingInProgress() == false) return;
+            
+            if (Application.MessageLoop)
+                Application.Exit();
             else
-            {
-                return;
-            }
+                Environment.Exit(1);
         }
 
         private void fileToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            TabPage tab = tabControl.SelectedTab;
-
+            var tab = tabControl.SelectedTab;
             if(tab.Name == "tabPage1" || tab.Name == "tabPage2")
             {
                 return;
@@ -442,32 +422,28 @@ namespace AdvancedModdingStation
             }
         }
 
-        private void projectToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            CloseProject();
-        }
+        private void projectToolStripMenuItem1_Click(object sender, EventArgs e) => CloseProject();
 
         private void buildProjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string[] projectFiles = { };
-
-            projectFiles = Directory.GetFiles(ConfigurationManager.AppSettings.Get("projectsDir") + "\\" + projectFolder, "*.*", SearchOption.AllDirectories);
-            if (projectFiles != null && projectFiles.Length != 0)
+            var projectFiles = Directory.GetFiles(ConfigurationManager.AppSettings.Get("projectsDir") + "\\" + projectFolder, "*.*", SearchOption.AllDirectories);
+            if (projectFiles.Length != 0)
             {
                 File.WriteAllLines(@"pakFiles.txt", projectFiles);
 
                 var path = Path.GetTempFileName() + ".exe";
                 var txtFile = new FileInfo(@"pakFiles.txt");
                 File.WriteAllBytes(path, Properties.Resources.psarc);
-                var arguments = string.Format("create -a --zlib --inputfile=\"{0}\" --output=\"{1}\"", AppDomain.CurrentDomain.BaseDirectory + "\\pakFiles.txt", ConfigurationManager.AppSettings.Get("projectsDir") + "\\" + projectFolder + "\\" + projectFolder + ".pak");
-                var procInfo = new ProcessStartInfo(path, arguments);
-                procInfo.WorkingDirectory = ConfigurationManager.AppSettings.Get("projectsDir") + "\\" + projectFolder;
-                procInfo.CreateNoWindow = true;
-                procInfo.UseShellExecute = false;
-                Process p = new Process();
-                p.StartInfo = procInfo;
-                p.Start();
-                p.WaitForExit();
+                var arguments = $"create -a --zlib --inputfile=\"{AppDomain.CurrentDomain.BaseDirectory + "\\pakFiles.txt"}\" --output=\"{ConfigurationManager.AppSettings.Get("projectsDir") + "\\" + projectFolder + "\\" + projectFolder + ".pak"}\"";
+                var procInfo = new ProcessStartInfo(path, arguments)
+                {
+                    WorkingDirectory = ConfigurationManager.AppSettings.Get("projectsDir") + "\\" + projectFolder,
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                };
+                var process = new Process { StartInfo = procInfo };
+                process.Start();
+                process.WaitForExit();
 
                 File.Delete(AppDomain.CurrentDomain.BaseDirectory + "\\pakFiles.txt");
 
@@ -501,14 +477,9 @@ namespace AdvancedModdingStation
             if (tabControl.SelectedIndex > 1)
             {
                 showOpenDocumentRequiredControls();
-                if (current.Text.EndsWith("*"))
-                {
-                    activeDocument = current.Text.Substring(0, current.Text.Length - 2);
-                }
-                else
-                {
-                    activeDocument = current.Text;
-                }
+                activeDocument = current.Text.EndsWith("*") ? 
+                    current.Text.Substring(0, current.Text.Length - 2) : 
+                    current.Text;
                 labelInfo.Text = activeDocument;
             }
             else
@@ -525,7 +496,7 @@ namespace AdvancedModdingStation
             this.errorBug = "This is a bug. Please report it together with the technical error message below.";
         }
 
-        private void showConfigurationForm()
+        private void ShowConfigForm()
         {
             ConfigForm configForm = new ConfigForm(this);
 
@@ -613,15 +584,16 @@ namespace AdvancedModdingStation
 
         public void checkConfigurationSet()
         {
-            if (String.IsNullOrWhiteSpace(ConfigurationManager.AppSettings.Get("gameDir")))
+            
+            if (string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings.Get("gameDir")))
             {
                 hideConfigRequiredControls();
             }
-            else if (String.IsNullOrWhiteSpace(ConfigurationManager.AppSettings.Get("unpackedDir")))
+            else if (string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings.Get("unpackedDir")))
             {
                 hideConfigRequiredControls();
             }
-            else if (String.IsNullOrWhiteSpace(ConfigurationManager.AppSettings.Get("projectsDir")))
+            else if (string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings.Get("projectsDir")))
             {
                 hideConfigRequiredControls();
             }
@@ -655,13 +627,7 @@ namespace AdvancedModdingStation
         {
             try
             {
-                if (Directory.EnumerateFileSystemEntries(ConfigurationManager.AppSettings.Get("unpackedDir")).Any())
-                {
-                    return true;
-                } else
-                {
-                    return false;
-                }
+                return Directory.EnumerateFileSystemEntries(ConfigurationManager.AppSettings.Get("unpackedDir")).Any();
             }
             catch (ArgumentException)
             {
@@ -737,7 +703,7 @@ namespace AdvancedModdingStation
             fileToolStripMenuItem1.Enabled = true;
         }
 
-        private void positionElements()
+        private void PositionElements()
         {
             labelSelectProject.Left = (this.Width - labelSelectProject.Width) / 2;
             labelUnpackGameFiles.Left = (this.Width - labelUnpackGameFiles.Width) / 2;
@@ -749,7 +715,7 @@ namespace AdvancedModdingStation
             listBoxProjects.Left = labelSelectProject.Left;
             listBoxProjects.Width = labelSelectProject.Width;
             listBoxProjects.Height = this.Height - 200;
-            tabControl.Size = new System.Drawing.Size(this.Width - 13, this.Height - 85);
+            tabControl.Size = new Size(this.Width - 13, this.Height - 85);
             tabControl.Location = new Point(0, 24);
             PanelSearch.Left = tabControl.Right - 315;
             PanelSearch.Top = tabControl.Top + 25;
@@ -790,13 +756,10 @@ namespace AdvancedModdingStation
             labelFirstProject.Visible = false;
             try
             {
-                string[] subdirs = Directory.GetDirectories(dir).Select(Path.GetFileName).ToArray();
+                var subDirs = Directory.GetDirectories(dir).Select(Path.GetFileName).ToArray();
                 listBoxProjects.Items.Clear();
-
-                for (int i = 0; i < subdirs.Length; i++)
-                {
-                    listBoxProjects.Items.Add(subdirs[i]);
-                }
+                foreach (string subDir in subDirs)
+                    listBoxProjects.Items.Add(subDir);
             }
             catch (UnauthorizedAccessException)
             {
@@ -829,7 +792,7 @@ namespace AdvancedModdingStation
             {
                 string errorMessage = "NMS Advanced Modding Station encountered an error while trying to access " + dir + Environment.NewLine + Environment.NewLine;
                        errorMessage += "Error type: " + errorType.Windows + " (IO Exception)" + Environment.NewLine;
-                       errorMessage += "Solution: Please make sure " + dir + " exists and is accessable!" + Environment.NewLine + Environment.NewLine;
+                       errorMessage += "Solution: Please make sure " + dir + " exists and is accessible!" + Environment.NewLine + Environment.NewLine;
                 string caption = "Error!";
 
                 MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -851,9 +814,9 @@ namespace AdvancedModdingStation
             string newFolder = newProjectName("");
             string dir = ConfigurationManager.AppSettings.Get("projectsDir") + "\\" + newFolder;
 
-            Regex rx = new Regex(@"^[0-9a-zA-Z_\-]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            var regex = new Regex(@"^[0-9a-zA-Z_\-]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-            if (rx.IsMatch(newFolder))
+            if (regex.IsMatch(newFolder))
             {
                 if (newFolder.Length > 0 && newFolder.Length < 33)
                 {
@@ -962,8 +925,7 @@ namespace AdvancedModdingStation
             {
                 string fileName = selectedItems[i].Text;
                 string sourcePath = selectedItems[i].SubItems[3].Text;
-                string sourcePathNoExt = Path.ChangeExtension(sourcePath, "exml");
-
+                
                 FileAttributes attr = File.GetAttributes(sourcePath);
 
                 if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
@@ -971,31 +933,30 @@ namespace AdvancedModdingStation
                     listViewProjectFiles.Items.Clear();
                     DirectoryInfo mainDir = new DirectoryInfo(sourcePath);
                     ListViewItem.ListViewSubItem[] subItems;
-                    ListViewItem item = null;
+                    ListViewItem item;
 
                     Cursor.Current = Cursors.WaitCursor;
                     foreach (DirectoryInfo dir in mainDir.GetDirectories())
                     {
                         item = new ListViewItem(dir.Name, 0);
-                        subItems = new ListViewItem.ListViewSubItem[]
-                            {
-                                new ListViewItem.ListViewSubItem(item, "Directory"),
-                                new ListViewItem.ListViewSubItem(item, dir.LastAccessTime.ToShortDateString()),
-                                new ListViewItem.ListViewSubItem(item, dir.FullName)
-                            };
+                        subItems = new[]
+                        {
+                            new ListViewItem.ListViewSubItem(item, "Directory"),
+                            new ListViewItem.ListViewSubItem(item, dir.LastAccessTime.ToShortDateString()),
+                            new ListViewItem.ListViewSubItem(item, dir.FullName)
+                        };
                         item.SubItems.AddRange(subItems);
                         listViewProjectFiles.Items.Add(item);
                     }
                     foreach (FileInfo file in mainDir.GetFiles())
                     {
                         item = new ListViewItem(file.Name, 1);
-                        subItems = new ListViewItem.ListViewSubItem[]
-                            {
-                                new ListViewItem.ListViewSubItem(item, "File"),
-                                new ListViewItem.ListViewSubItem(item, file.LastAccessTime.ToShortDateString()),
-                                new ListViewItem.ListViewSubItem(item, file.FullName)
-                            };
-
+                        subItems = new[]
+                        {
+                            new ListViewItem.ListViewSubItem(item, "File"),
+                            new ListViewItem.ListViewSubItem(item, file.LastAccessTime.ToShortDateString()),
+                            new ListViewItem.ListViewSubItem(item, file.FullName)
+                        };
                         item.SubItems.AddRange(subItems);
                         listViewProjectFiles.Items.Add(item);
                     }
@@ -1027,27 +988,17 @@ namespace AdvancedModdingStation
                                 else
                                 {
                                     string errorMessage = this.applicationName + " encountered an error while trying to open " + sourcePath + Environment.NewLine + Environment.NewLine;
-                                    errorMessage += "Error type: " + MainForm.errorType.Version + Environment.NewLine;
-                                    errorMessage += "Solution: This file was compiled with a newer or older version of MBINCompiler. Reported version: " + fileVersion.ToString() + Environment.NewLine;
-                                    errorMessage += "Close " + this.applicationName + " and download the appropiate DLL version of MBINCompiler. Make a backup of the DLL present and replace it with the downloaded DLL. Then restart " + this.applicationName;
-                                    string caption = "Error!";
+                                    errorMessage += "Error type: " + errorType.Version + Environment.NewLine;
+                                    errorMessage += "Solution: This file was compiled with a newer or older version of MBINCompiler. Reported version: " + fileVersion + Environment.NewLine;
+                                    errorMessage += "Close " + this.applicationName + " and download the appropriate DLL version of MBINCompiler. Make a backup of the DLL present and replace it with the downloaded DLL. Then restart " + this.applicationName;
 
-                                    DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                                    if (errorResult == DialogResult.OK)
-                                    {
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        return;
-                                    }
+                                    MessageBox.Show(errorMessage, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    return;
                                 }
                         }
                     }
-                    NMSTemplate obj = libMBIN.FileIO.LoadMbin(sourcePath);
+                    NMSTemplate obj = FileIO.LoadMbin(sourcePath);
                     string exmlCode = EXmlFile.WriteTemplate(obj);
-                    //obj.WriteToExml(sourcePathNoExt);
                     Scintilla edit = editor.createControl(exmlCode);
 
                     this.textAreas.Add(fileName, edit);
@@ -1064,11 +1015,9 @@ namespace AdvancedModdingStation
             int? index = searchTabs(tabName);
             if (index == null)
             {
-                TabPage newTab = new TabPage();
-                newTab.Text = tabName;
+                TabPage newTab = new TabPage { Text = tabName };
                 newTab.Controls.Add(scintilla);
-                Color col = new Color();
-                col = Color.FromArgb(255, 255, 255, 255);
+                Color col = Color.FromArgb(255, 255, 255, 255);
                 SetTabHeader(newTab, col);
                 tabControl.TabPages.Add(newTab);
                 tabControl.SelectedIndex = tabControl.TabPages.Count - 1;
@@ -1109,17 +1058,14 @@ namespace AdvancedModdingStation
 
         private void PopulateTreeView()
         {
-            TreeNode rootNode;
             string dir = ConfigurationManager.AppSettings.Get("unpackedDir");
-
             try
             {
-                DirectoryInfo info = new DirectoryInfo(dir);
-                if (info.Exists)
+                var infoDir = new DirectoryInfo(dir);
+                if (infoDir.Exists)
                 {
-                    rootNode = new TreeNode(info.Name);
-                    rootNode.Tag = info;
-                    GetDirectories(info.GetDirectories(), rootNode);
+                    var rootNode = new TreeNode(infoDir.Name) { Tag = infoDir };
+                    GetDirectories(infoDir.GetDirectories(), rootNode);
                     treeViewGameFiles.Nodes.Clear();
                     treeViewGameFiles.Nodes.Add(rootNode);
                 }
@@ -1155,7 +1101,6 @@ namespace AdvancedModdingStation
 
         public void PopulateProjectTreeView()
         {
-            TreeNode rootNode;
             string dir = ConfigurationManager.AppSettings.Get("projectsDir");
 
             try
@@ -1163,8 +1108,7 @@ namespace AdvancedModdingStation
                 DirectoryInfo info = new DirectoryInfo(@"Projects\\" + projectFolder);
                 if (info.Exists)
                 {
-                    rootNode = new TreeNode(info.Name);
-                    rootNode.Tag = info;
+                    var rootNode = new TreeNode(info.Name) { Tag = info };
                     GetDirectories(info.GetDirectories(), rootNode);
                     listViewProjectFiles.Items.Clear();
                     treeViewProjectFiles.Nodes.Clear();
@@ -1202,14 +1146,13 @@ namespace AdvancedModdingStation
 
         private void GetDirectories(DirectoryInfo[] subDirs, TreeNode nodeToAddTo)
         {
-            TreeNode aNode;
-            DirectoryInfo[] subSubDirs;
             foreach (DirectoryInfo subDir in subDirs)
             {
-                aNode = new TreeNode(subDir.Name, 0, 0);
-                aNode.Tag = subDir;
-                aNode.ImageKey = "folder";
-                subSubDirs = subDir.GetDirectories();
+                var aNode = new TreeNode(subDir.Name, 0, 0)
+                {
+                    Tag = subDir, ImageKey = "folder"
+                };
+                var subSubDirs = subDir.GetDirectories();
                 if (subSubDirs.Length != 0)
                 {
                     GetDirectories(subSubDirs, aNode);
@@ -1238,7 +1181,7 @@ namespace AdvancedModdingStation
         private void CloseTab(TabPage page)
         {
             string tabName = page.Text;
-            string fileName = "";
+            string fileName;
 
             if (tabName.EndsWith("*"))
             {
@@ -1418,22 +1361,16 @@ namespace AdvancedModdingStation
 
         private void CloseProject()
         {
-            TabControl.TabPageCollection pages = tabControl.TabPages;
-            foreach (TabPage page in pages)
+            var pages = tabControl.TabPages;
+            var errorResponses = from TabPage page in pages 
+                where page.Text.EndsWith("*")
+                select "Would you like to save changes to your project before closing?"
+                into message
+                select MessageBox.Show(message, "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (errorResponses.Any(response => response == DialogResult.Yes))
             {
-                if (page.Text.EndsWith("*"))
-                {
-                    string message = "Would you like to save changes to your project before closing?";
-                    string caption = "Save changes?";
-
-                    DialogResult errorResult = MessageBox.Show(message, caption, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                    if (errorResult == DialogResult.Yes)
-                    {
-                        saveAllMbinFiles();
-                        break;
-                    }
-                }
+                saveAllMbinFiles();
             }
 
             foreach (TabPage page in pages)
@@ -1471,8 +1408,8 @@ namespace AdvancedModdingStation
         /// <exception cref="InvalidOperationException"></exception>
         public static String MakeRelativePath(String fromPath, String toPath)
         {
-            if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
-            if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
+            if (string.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
+            if (string.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
 
             Uri fromUri = new Uri(fromPath);
             Uri toUri = new Uri(toPath);
@@ -1528,20 +1465,18 @@ namespace AdvancedModdingStation
 
         public void setFileEdited()
         {
-            if (!String.IsNullOrWhiteSpace(activeDocument))
-            {
-                TabPage current = tabControl.SelectedTab;
-                if (!current.Text.EndsWith("*") && tabControl.SelectedIndex > 1)
-                {
-                    this.filesChanged[activeDocument] = true;
-                    current.Text = current.Text + " *";
-                }
-            }
+            if (string.IsNullOrWhiteSpace(activeDocument)) return;
+            
+            var currentTab = tabControl.SelectedTab;
+            if (currentTab.Text.EndsWith("*") || tabControl.SelectedIndex <= 1) return;
+            
+            this.filesChanged[activeDocument] = true;
+            currentTab.Text += " *";
         }
 
         private void saveMbinFile()
         {
-            if (String.IsNullOrEmpty(activeDocument))
+            if (string.IsNullOrEmpty(activeDocument))
             {
                 return;
             }
@@ -1563,17 +1498,11 @@ namespace AdvancedModdingStation
 
                 return;
             }
-            string fileName;
 
             TabPage current = tabControl.SelectedTab;
-            if (current.Text.EndsWith("*"))
-            {
-                fileName = current.Text.Substring(0, current.Text.Length - 2);
-            }
-            else
-            {
-                fileName = current.Text;
-            }
+            string fileName = current.Text.EndsWith("*") ? 
+                current.Text.Substring(0, current.Text.Length - 2) : 
+                current.Text;
             current.Text = fileName;
         }
 
@@ -1693,7 +1622,7 @@ namespace AdvancedModdingStation
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AboutForm aboutForm = new AboutForm(this);
+            var aboutForm = new AboutForm(this.applicationName);
 
             try
             {

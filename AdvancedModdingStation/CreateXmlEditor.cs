@@ -24,15 +24,15 @@ namespace AdvancedModdingStation
 
         public Scintilla createControl(string data)
         {
-            TextArea = new Scintilla();
-
-            // BASIC CONFIG
-            TextArea.Dock = System.Windows.Forms.DockStyle.Fill;
-            TextArea.TextChanged += (this.OnTextChanged);
-
+            TextArea = new Scintilla
+            {
+                Dock = DockStyle.Fill, 
+                WrapMode = WrapMode.None, 
+                IndentationGuides = IndentView.LookBoth
+            };
             // INITIAL VIEW CONFIG
-            TextArea.WrapMode = WrapMode.None;
-            TextArea.IndentationGuides = IndentView.LookBoth;
+            // BASIC CONFIG
+            TextArea.TextChanged += (this.OnTextChanged);
 
             // STYLING
             InitColors();
