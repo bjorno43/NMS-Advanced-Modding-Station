@@ -80,7 +80,7 @@
             this.listViewHelp.TileSize = new System.Drawing.Size(245, 18);
             this.listViewHelp.UseCompatibleStateImageBehavior = false;
             this.listViewHelp.View = System.Windows.Forms.View.Tile;
-            this.listViewHelp.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listViewHelp_MouseClick);
+            this.listViewHelp.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ListViewHelp_MouseClick);
             // 
             // richTextBoxImportGuide
             // 
