@@ -65,9 +65,11 @@ namespace AdvancedModdingStation
 
         private void SelectGameDirectory()
         {
-            FolderBrowserDialog gameDirDlg = new FolderBrowserDialog();
-            gameDirDlg.Description = "Please select your No Man's Sky installation directory.";
-            gameDirDlg.ShowNewFolderButton = false;
+            FolderBrowserDialog gameDirDlg = new FolderBrowserDialog
+            {
+                Description = "Please select your No Man's Sky installation directory.",
+                ShowNewFolderButton = false
+            };
             DialogResult result = gameDirDlg.ShowDialog();
 
             if (result == DialogResult.OK)
@@ -81,11 +83,11 @@ namespace AdvancedModdingStation
                     }
                     catch (Exception e)
                     {
-                        string errorMessage = form.applicationName + " encountered an error while trying to save your No Man's Sky installation directory." + Environment.NewLine + Environment.NewLine;
-                        errorMessage += "Error type: " + MainForm.errorType.Bug + Environment.NewLine;
+                        string errorMessage = applicationErrorMessage("save", form.applicationName);
+                        errorMessage += applicationErrorMessage("bug");
                         errorMessage += "Solution: " + form.errorBug + Environment.NewLine + Environment.NewLine;
                         errorMessage += e.Message;
-                        string caption = "Error!";
+                        string caption = applicationErrorMessage("");
 
                         DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
@@ -101,10 +103,10 @@ namespace AdvancedModdingStation
                 }
                 else
                 {
-                    string errorMessage = form.applicationName + " encountered an error while trying to verify your No Man's Sky installation directory." + Environment.NewLine + Environment.NewLine;
-                    errorMessage += "Error type: " + MainForm.errorType.Misconfiguration + Environment.NewLine;
-                    errorMessage += "Solution: Please make sure you select the correct No Man's Sky installation directory. ";
-                    string caption = "Error!";
+                    string errorMessage = applicationErrorMessage("save", form.applicationName);
+                    errorMessage += applicationErrorMessage("misconfig");
+                    errorMessage += $"Solution: {gameDirDlg.Description}";
+                    string caption = applicationErrorMessage("");
 
                     DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
@@ -118,10 +120,10 @@ namespace AdvancedModdingStation
             {
                 if (String.IsNullOrWhiteSpace(ConfigurationManager.AppSettings.Get("gameDir")))
                 {
-                    string errorMessage = form.applicationName + " can't function without knowing where your No Man's Sky installation directory is located. Press Ok to try again or Cancel to exit." + Environment.NewLine + Environment.NewLine;
-                    errorMessage += "Error type: " + MainForm.errorType.Misconfiguration + Environment.NewLine;
-                    errorMessage += "Solution: Please select your No Man's Sky installation directory.";
-                    string caption = "Error!";
+                    string errorMessage = applicationErrorMessage("installDir", form.applicationName);
+                    errorMessage += applicationErrorMessage("misconfig");
+                    errorMessage += $"Solution: {gameDirDlg.Description}";
+                    string caption = applicationErrorMessage("");
 
                     DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
 
@@ -141,9 +143,11 @@ namespace AdvancedModdingStation
 
         private void SelectUnpackDirectory()
         {
-            FolderBrowserDialog unpackDirDlg = new FolderBrowserDialog();
-            unpackDirDlg.Description = "Please select the location where you wish to unpack your game files.";
-            unpackDirDlg.ShowNewFolderButton = true;
+            FolderBrowserDialog unpackDirDlg = new FolderBrowserDialog
+            {
+                Description = "Please select the location where you wish to unpack your game files.",
+                ShowNewFolderButton = true
+            };
             DialogResult result = unpackDirDlg.ShowDialog();
 
             if (result == DialogResult.OK)
@@ -161,10 +165,10 @@ namespace AdvancedModdingStation
 
                         if (freeSpace < requiredSpace)
                         {
-                            string errorMessage = this.form.applicationName + " encountered an error while trying to set " + unpackDirDlg.SelectedPath + " as your Unpacked Games Files directory." + Environment.NewLine + Environment.NewLine;
-                            errorMessage += "Error type: " + MainForm.errorType.Windows + "" + Environment.NewLine;
-                            errorMessage += "Solution: Please make sure you have at least 30 GigaBytes of free space in the target location!";
-                            string caption = "Error!";
+                            string errorMessage = applicationErrorMessage("gameFile", this.form.applicationName, unpackDirDlg.SelectedPath);
+                            errorMessage += applicationErrorMessage("windows");
+                            errorMessage += applicationErrorMessage("sol1");
+                            string caption = applicationErrorMessage("");
 
                             DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
@@ -185,10 +189,10 @@ namespace AdvancedModdingStation
                     }
                     catch (ArgumentException)
                     {
-                        string errorMessage = this.form.applicationName + " encountered an error while trying to select the choosen hard drive in order to calculate free space." + Environment.NewLine + Environment.NewLine;
-                        errorMessage += "Error type: " + MainForm.errorType.Bug + "" + Environment.NewLine;
-                        errorMessage += "Solution: Please make sure you do NOT select a network or removable drive as your Unpacked Game Files location.";
-                        string caption = "Error!";
+                        string errorMessage = applicationErrorMessage("space", form.applicationName);
+                        errorMessage += applicationErrorMessage("bug");
+                        errorMessage += applicationErrorMessage("sol2");
+                        string caption = applicationErrorMessage("");
 
                         DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
@@ -209,9 +213,11 @@ namespace AdvancedModdingStation
 
         private void SelectProjectsDirectory()
         {
-            FolderBrowserDialog projectsDirDlg = new FolderBrowserDialog();
-            projectsDirDlg.Description = "Please select the location where you wish to unpack your game files.";
-            projectsDirDlg.ShowNewFolderButton = true;
+            FolderBrowserDialog projectsDirDlg = new FolderBrowserDialog
+            {
+                Description = "Please select the location where you wish to unpack your game files.",
+                ShowNewFolderButton = true
+            };
             DialogResult result = projectsDirDlg.ShowDialog();
 
             if (result == DialogResult.OK)
@@ -229,10 +235,10 @@ namespace AdvancedModdingStation
 
                         if (freeSpace < requiredSpace)
                         {
-                            string errorMessage = this.form.applicationName + " encountered an error while trying to set " + projectsDirDlg.SelectedPath + " as your Projects directory." + Environment.NewLine + Environment.NewLine;
-                            errorMessage += "Error type: " + MainForm.errorType.Windows + "" + Environment.NewLine;
-                            errorMessage += "Solution: Please make sure you have at least 1 GigaByte of free space in the target location!";
-                            string caption = "Error!";
+                            string errorMessage = applicationErrorMessage("path",this.form.applicationName,projectsDirDlg.SelectedPath);
+                            errorMessage += applicationErrorMessage("windows");
+                            errorMessage += applicationErrorMessage("sol3");
+                            string caption = applicationErrorMessage("");
 
                             DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
@@ -253,10 +259,10 @@ namespace AdvancedModdingStation
                     }
                     catch (ArgumentException)
                     {
-                        string errorMessage = this.form.applicationName + " encountered an error while trying to select the choosen hard drive in order to calculate free space." + Environment.NewLine + Environment.NewLine;
-                        errorMessage += "Error type: " + MainForm.errorType.Bug + "" + Environment.NewLine;
-                        errorMessage += "Solution: Please make sure you do NOT select a network or removable drive as your Projects location.";
-                        string caption = "Error!";
+                        string errorMessage = applicationErrorMessage("space", form.applicationName);
+                        errorMessage += applicationErrorMessage("bug");
+                        errorMessage += applicationErrorMessage("sol4");
+                        string caption = applicationErrorMessage("");
 
                         DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
@@ -274,5 +280,22 @@ namespace AdvancedModdingStation
 
             form.checkConfigurationSet();
         }
+
+        private string applicationErrorMessage(string err, string applicationName = null, string path = null) => err switch
+        {
+            "save" => $"{applicationName} encountered an error while trying to save your No Man's Sky installation directory. {Environment.NewLine}{Environment.NewLine}",
+            "installDir" => $"{applicationName} can't function without knowing where your No Man's Sky installation directory is located. Press Ok to try again or Cancel to exit. {Environment.NewLine}{Environment.NewLine}",
+            "space" => $"{applicationName} encountered an error while trying to select the choosen hard drive in order to calculate free space. {Environment.NewLine}{Environment.NewLine}",
+            "path" => $"{applicationName} encountered an error while trying to set {path} as your Projects directory. {Environment.NewLine}{Environment.NewLine}",
+            "gameFile" => $"{applicationName} encountered an error while trying to set {path} as your Unpacked Games Files directory. {Environment.NewLine}{Environment.NewLine}",
+            "bug" => $"Error type: {MainForm.errorType.Bug} {Environment.NewLine}",
+            "windows" => $"Error type: {MainForm.errorType.Windows} {Environment.NewLine}",
+            "misconfig" => $"Error type: {MainForm.errorType.Misconfiguration} {Environment.NewLine}",
+            "sol1" => "Solution: Please make sure you have at least 30 GigaBytes of free space in the target location!",
+            "sol2" => "Solution: Please make sure you do NOT select a network or removable drive as your Unpacked Game Files location.",
+            "sol3" => "Solution: Please make sure you have at least 1 GigaByte of free space in the target location!",
+            "sol4" => "Solution: Please make sure you do NOT select a network or removable drive as your Projects location.",
+            _ => "Error!"
+        };
     }
 }
