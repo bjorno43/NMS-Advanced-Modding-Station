@@ -16,8 +16,8 @@ namespace AdvancedModdingStation
 
         public StreamWriter Logger { get; set; }
 
-        private int currentOpItemCount = 0;
-        private int currentOpTotalItems = 0;
+        private readonly int currentOpItemCount = 0;
+        private readonly int currentOpTotalItems = 0;
 
         public enum PSArcOption
         {
@@ -47,10 +47,10 @@ namespace AdvancedModdingStation
             {
                 OutputFileName = outputPath, InputDirectory = inputPath
             };
+
             foreach (string s in inputFiles)
-            {
                 xml.AddFileToPack(s);
-            }
+
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
             LogAndUpdate("Starting PSARC.", currentOpItemCount, currentOpTotalItems);
             string outputMsg = executeWithXml(writeXmlToFile(xml));
@@ -166,14 +166,14 @@ namespace AdvancedModdingStation
             // Actually PSARC.EXE, but we just call it something random just cause.
             var path = Path.GetTempFileName() + ".exe"; 
             File.WriteAllBytes(path, Properties.Resources.psarc);
-            var psInfo = new ProcessStartInfo(path)
+            return new ProcessStartInfo(path)
             {
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 Arguments = args,
                 WorkingDirectory = Environment.CurrentDirectory
             };
-            return psInfo;
+            //return psInfo;
         }
 
         private static IEnumerable<string> GetFiles(string path) => 
