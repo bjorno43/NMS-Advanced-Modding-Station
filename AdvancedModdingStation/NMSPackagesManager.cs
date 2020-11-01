@@ -377,145 +377,146 @@ namespace AdvancedModdingStation
             if (gameFiles != null && gameFiles.Length != 0)
             {
                 string unpackPath = unpackedDir;
-                PSArcXmlFile.XmlFileType xmlType = PSArcXmlFile.XmlFileType.Extract;
-                PSArcXmlFile gamefilesXML1 = new PSArcXmlFile(xmlType);
-                             gamefilesXML1.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML2 = new PSArcXmlFile(xmlType);
-                             gamefilesXML2.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML3 = new PSArcXmlFile(xmlType);
-                             gamefilesXML3.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML4 = new PSArcXmlFile(xmlType);
-                             gamefilesXML4.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML5 = new PSArcXmlFile(xmlType);
-                             gamefilesXML5.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML6 = new PSArcXmlFile(xmlType);
-                             gamefilesXML6.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML7 = new PSArcXmlFile(xmlType);
-                             gamefilesXML7.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML8 = new PSArcXmlFile(xmlType);
-                             gamefilesXML8.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML9 = new PSArcXmlFile(xmlType);
-                             gamefilesXML9.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML10 = new PSArcXmlFile(xmlType);
-                             gamefilesXML10.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML11 = new PSArcXmlFile(xmlType);
-                             gamefilesXML11.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML12 = new PSArcXmlFile(xmlType);
-                             gamefilesXML12.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML13 = new PSArcXmlFile(xmlType);
-                             gamefilesXML13.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML14 = new PSArcXmlFile(xmlType);
-                             gamefilesXML14.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML15 = new PSArcXmlFile(xmlType);
-                             gamefilesXML15.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML16 = new PSArcXmlFile(xmlType);
-                             gamefilesXML16.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML17 = new PSArcXmlFile(xmlType);
-                             gamefilesXML17.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML18 = new PSArcXmlFile(xmlType);
-                             gamefilesXML18.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML19 = new PSArcXmlFile(xmlType);
-                             gamefilesXML19.OutputFileName = unpackPath;
-                PSArcXmlFile gamefilesXML20 = new PSArcXmlFile(xmlType);
-                             gamefilesXML20.OutputFileName = unpackPath;
-                int twenty = gameFiles.Length / 20;
-                int counter = 1;
+                const PSArcXmlFile.XmlFileType xmlType = PSArcXmlFile.XmlFileType.Extract;
+                //PSArcXmlFile gamefilesXML1 = new PSArcXmlFile(xmlType);
+                //gamefilesXML1.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML2 = new PSArcXmlFile(xmlType);
+                //gamefilesXML2.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML3 = new PSArcXmlFile(xmlType);
+                //gamefilesXML3.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML4 = new PSArcXmlFile(xmlType);
+                //gamefilesXML4.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML5 = new PSArcXmlFile(xmlType);
+                //gamefilesXML5.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML6 = new PSArcXmlFile(xmlType);
+                //gamefilesXML6.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML7 = new PSArcXmlFile(xmlType);
+                //gamefilesXML7.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML8 = new PSArcXmlFile(xmlType);
+                //gamefilesXML8.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML9 = new PSArcXmlFile(xmlType);
+                //gamefilesXML9.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML10 = new PSArcXmlFile(xmlType);
+                //gamefilesXML10.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML11 = new PSArcXmlFile(xmlType);
+                //gamefilesXML11.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML12 = new PSArcXmlFile(xmlType);
+                //gamefilesXML12.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML13 = new PSArcXmlFile(xmlType);
+                //gamefilesXML13.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML14 = new PSArcXmlFile(xmlType);
+                //gamefilesXML14.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML15 = new PSArcXmlFile(xmlType);
+                //gamefilesXML15.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML16 = new PSArcXmlFile(xmlType);
+                //gamefilesXML16.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML17 = new PSArcXmlFile(xmlType);
+                //gamefilesXML17.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML18 = new PSArcXmlFile(xmlType);
+                //gamefilesXML18.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML19 = new PSArcXmlFile(xmlType);
+                //gamefilesXML19.OutputFileName = unpackPath;
+                //PSArcXmlFile gamefilesXML20 = new PSArcXmlFile(xmlType);
+                //gamefilesXML20.OutputFileName = unpackPath;
 
-                foreach (string file in gameFiles)
-                {
-                    if (counter <= twenty)
-                    {
-                        gamefilesXML1.AddPakToExtract(file);
-                    }
-                    if (counter > twenty && counter <= twenty * 2)
-                    {
-                        gamefilesXML2.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 2 && counter <= twenty * 3)
-                    {
-                        gamefilesXML3.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 3 && counter <= twenty * 4)
-                    {
-                        gamefilesXML4.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 4 && counter <= twenty * 5)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 5 && counter <= twenty * 6)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 6 && counter <= twenty * 7)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 7 && counter <= twenty * 8)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 8 && counter <= twenty * 9)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 9 && counter <= twenty * 10)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 10 && counter <= twenty * 11)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 11 && counter <= twenty * 12)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 12 && counter <= twenty * 13)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 13 && counter <= twenty * 14)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 14 && counter <= twenty * 15)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 15 && counter <= twenty * 16)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 16 && counter <= twenty * 17)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 17 && counter <= twenty * 18)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 18 && counter <= twenty * 19)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    if (counter > twenty * 19)
-                    {
-                        gamefilesXML5.AddPakToExtract(file);
-                    }
-                    counter++;
-                }
+                //foreach (string file in gameFiles)
+                //{
+                //    if (counter <= twenty)
+                //    {
+                //        gamefilesXML1.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty && counter <= twenty * 2)
+                //    {
+                //        gamefilesXML2.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 2 && counter <= twenty * 3)
+                //    {
+                //        gamefilesXML3.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 3 && counter <= twenty * 4)
+                //    {
+                //        gamefilesXML4.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 4 && counter <= twenty * 5)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 5 && counter <= twenty * 6)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 6 && counter <= twenty * 7)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 7 && counter <= twenty * 8)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 8 && counter <= twenty * 9)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 9 && counter <= twenty * 10)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 10 && counter <= twenty * 11)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 11 && counter <= twenty * 12)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 12 && counter <= twenty * 13)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 13 && counter <= twenty * 14)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 14 && counter <= twenty * 15)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 15 && counter <= twenty * 16)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 16 && counter <= twenty * 17)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 17 && counter <= twenty * 18)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 18 && counter <= twenty * 19)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //    if (counter > twenty * 19)
+                //    {
+                //        gamefilesXML5.AddPakToExtract(file);
+                //    }
+                //counter++;
+                //}
                 PSArc psarc = new PSArc();
 
-                BackgroundWorker bw = new BackgroundWorker();
+                BackgroundWorker bw = new BackgroundWorker
+                {
 
-                // this allows our worker to report progress during work
-                bw.WorkerReportsProgress = true;
+                    // this allows our worker to report progress during work
+                    WorkerReportsProgress = true
+                };
 
                 // what to do in the background thread
                 bw.DoWork += new DoWorkEventHandler(
                 delegate (object o, DoWorkEventArgs args)
                 {
+
                     BackgroundWorker b = o as BackgroundWorker;
 
                     form.Invoke((MethodInvoker)(() => form.configToolStripMenuItem.Enabled = false));
@@ -524,47 +525,180 @@ namespace AdvancedModdingStation
                     form.Invoke((MethodInvoker)(() => form.labelUnpackingInProgress.Visible = true));
                     form.Invoke((MethodInvoker)(() => form.backgroundWorkerInProgress = true));
 
-                    b.ReportProgress(0);
-                    psarc.Extract(gamefilesXML1);
-                    b.ReportProgress(5);
-                    psarc.Extract(gamefilesXML2);
-                    b.ReportProgress(10);
-                    psarc.Extract(gamefilesXML3);
-                    b.ReportProgress(15);
-                    psarc.Extract(gamefilesXML4);
-                    b.ReportProgress(20);
-                    psarc.Extract(gamefilesXML5);
-                    b.ReportProgress(25);
-                    psarc.Extract(gamefilesXML6);
-                    b.ReportProgress(30);
-                    psarc.Extract(gamefilesXML7);
-                    b.ReportProgress(35);
-                    psarc.Extract(gamefilesXML8);
-                    b.ReportProgress(40);
-                    psarc.Extract(gamefilesXML9);
-                    b.ReportProgress(45);
-                    psarc.Extract(gamefilesXML10);
-                    b.ReportProgress(50);
-                    psarc.Extract(gamefilesXML11);
-                    b.ReportProgress(55);
-                    psarc.Extract(gamefilesXML12);
-                    b.ReportProgress(60);
-                    psarc.Extract(gamefilesXML13);
-                    b.ReportProgress(65);
-                    psarc.Extract(gamefilesXML14);
-                    b.ReportProgress(70);
-                    psarc.Extract(gamefilesXML15);
-                    b.ReportProgress(75);
-                    psarc.Extract(gamefilesXML16);
-                    b.ReportProgress(80);
-                    psarc.Extract(gamefilesXML17);
-                    b.ReportProgress(85);
-                    psarc.Extract(gamefilesXML18);
-                    b.ReportProgress(90);
-                    psarc.Extract(gamefilesXML19);
-                    b.ReportProgress(95);
-                    psarc.Extract(gamefilesXML20);
+                    int twenty = gameFiles.Length / 20;
+                    int counter = 1;
+
+                    foreach (string file in gameFiles)
+                    {
+                        PSArcXmlFile gamefilesXML00 = new PSArcXmlFile(xmlType)
+                        {
+                            OutputFileName = unpackPath
+                        };
+                        if (counter <= twenty)
+                        {
+                            gamefilesXML00.AddFileToExtract(file);
+                            b.ReportProgress(0);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty && counter <= twenty * 2)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(5);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 2 && counter <= twenty * 3)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(10);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 3 && counter <= twenty * 4)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(15);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 4 && counter <= twenty * 5)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(20);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 5 && counter <= twenty * 6)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(25);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 6 && counter <= twenty * 7)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(30);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 7 && counter <= twenty * 8)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(35);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 8 && counter <= twenty * 9)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(40);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 9 && counter <= twenty * 10)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(45);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 10 && counter <= twenty * 11)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(50);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 11 && counter <= twenty * 12)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(55);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 12 && counter <= twenty * 13)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(60);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 13 && counter <= twenty * 14)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(65);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 14 && counter <= twenty * 15)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(70);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 15 && counter <= twenty * 16)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(75);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 16 && counter <= twenty * 17)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(80);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 17 && counter <= twenty * 18)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(85);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 18 && counter <= twenty * 19)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(90);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        if (counter > twenty * 19)
+                        {
+                            gamefilesXML00.AddPakToExtract(file);
+                            b.ReportProgress(95);
+                            psarc.Extract(gamefilesXML00);
+                        }
+                        counter++;
+                    }
                     b.ReportProgress(100);
+
+                    //b.ReportProgress(0);
+                    //psarc.Extract(gamefilesXML1);
+                    //b.ReportProgress(5);
+                    //psarc.Extract(gamefilesXML2);
+                    //b.ReportProgress(10);
+                    //psarc.Extract(gamefilesXML3);
+                    //b.ReportProgress(15);
+                    //psarc.Extract(gamefilesXML4);
+                    //b.ReportProgress(20);
+                    //psarc.Extract(gamefilesXML5);
+                    //b.ReportProgress(25);
+                    //psarc.Extract(gamefilesXML6);
+                    //b.ReportProgress(30);
+                    //psarc.Extract(gamefilesXML7);
+                    //b.ReportProgress(35);
+                    //psarc.Extract(gamefilesXML8);
+                    //b.ReportProgress(40);
+                    //psarc.Extract(gamefilesXML9);
+                    //b.ReportProgress(45);
+                    //psarc.Extract(gamefilesXML10);
+                    //b.ReportProgress(50);
+                    //psarc.Extract(gamefilesXML11);
+                    //b.ReportProgress(55);
+                    //psarc.Extract(gamefilesXML12);
+                    //b.ReportProgress(60);
+                    //psarc.Extract(gamefilesXML13);
+                    //b.ReportProgress(65);
+                    //psarc.Extract(gamefilesXML14);
+                    //b.ReportProgress(70);
+                    //psarc.Extract(gamefilesXML15);
+                    //b.ReportProgress(75);
+                    //psarc.Extract(gamefilesXML16);
+                    //b.ReportProgress(80);
+                    //psarc.Extract(gamefilesXML17);
+                    //b.ReportProgress(85);
+                    //psarc.Extract(gamefilesXML18);
+                    //b.ReportProgress(90);
+                    //psarc.Extract(gamefilesXML19);
+                    //b.ReportProgress(95);
+                    //psarc.Extract(gamefilesXML20);
+                    //b.ReportProgress(100);
 
                 });
 
