@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -96,10 +97,10 @@ namespace AdvancedModdingStation
                             }
                             catch (UnauthorizedAccessException)
                             {
-                                string errorMessage = this.form.applicationName + " encountered an error while trying to create your Project directory (it doesn't exist yet)." + Environment.NewLine + Environment.NewLine;
-                                errorMessage += "Error type: " + MainForm.errorType.Windows + " (Access denied!) " + Environment.NewLine;
-                                errorMessage += "Solution: Please make sure you have full read / write access to " + projectsDir;
-                                string caption = "Error!";
+                                string errorMessage =  packageErrorMessage("unauthorized",this.form.applicationName);
+                                errorMessage += packageErrorMessage("windows","", "(Access denied!)");
+                                errorMessage += packageErrorMessage("sol1", "", projectsDir);
+                                string caption = packageErrorMessage("");
 
                                 DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
@@ -114,10 +115,10 @@ namespace AdvancedModdingStation
                             }
                             catch (PathTooLongException)
                             {
-                                string errorMessage = this.form.applicationName + " encountered an error while trying to create your Project directory (it doesn't exist yet)." + Environment.NewLine + Environment.NewLine;
-                                errorMessage += "Error type: " + MainForm.errorType.Windows + " (Path too long!) " + Environment.NewLine;
-                                errorMessage += "Solution: Please use a short path for your Projects directory. For example: C:\\NMSAdvancedModdingStation\\Projects";
-                                string caption = "Error!";
+                                string errorMessage = packageErrorMessage("unauthorized", this.form.applicationName);
+                                errorMessage += packageErrorMessage("windows", "", "(Path too long!)");
+                                errorMessage += packageErrorMessage("sol2") ;
+                                string caption = packageErrorMessage("");
 
                                 DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
@@ -196,10 +197,10 @@ namespace AdvancedModdingStation
             // If the unpacked game files directory doesn't exist, it's safe to assume that the game files aren't unpacked yet
             if (String.IsNullOrWhiteSpace(unpackedDir))
             {
-                string errorMessage = this.form.applicationName + " encountered an error while trying to read your Unpacked Game Files setting." + Environment.NewLine + Environment.NewLine;
-                errorMessage += "Error type: " + MainForm.errorType.Misconfiguration + Environment.NewLine;
+                string errorMessage = packageErrorMessage("readUnpacked", this.form.applicationName);
+                errorMessage += packageErrorMessage("misconfig");
                 errorMessage += "Solution: Please go to Config => Settings and setup your Paths before attempting to unpack." + Environment.NewLine;
-                string caption = "Error!";
+                string caption = packageErrorMessage("");
 
                 DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
@@ -217,10 +218,10 @@ namespace AdvancedModdingStation
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    string errorMessage = this.form.applicationName + " encountered an error while trying to create your Unpacked Game Files directory (it doesn't exist yet)." + Environment.NewLine + Environment.NewLine;
-                    errorMessage += "Error type: " + MainForm.errorType.Windows + " (Access denied!) " + Environment.NewLine;
-                    errorMessage += "Solution: Please make sure you have full read / write access to " + ConfigurationManager.AppSettings.Get("unpackedDir");
-                    string caption = "Error!";
+                    string errorMessage = packageErrorMessage("unpacked", this.form.applicationName);
+                    errorMessage += packageErrorMessage("windows", "", "(Access denied!)");
+                    errorMessage += packageErrorMessage("sol1", ConfigurationManager.AppSettings.Get("unpackedDir"));
+                    string caption = packageErrorMessage("");
 
                     DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
@@ -235,10 +236,10 @@ namespace AdvancedModdingStation
                 }
                 catch (PathTooLongException)
                 {
-                    string errorMessage = this.form.applicationName + " encountered an error while trying to create your Unpacked Game Files directory (it doesn't exist yet)." + Environment.NewLine + Environment.NewLine;
-                    errorMessage += "Error type: " + MainForm.errorType.Windows + " (Path too long!) " + Environment.NewLine;
-                    errorMessage += "Solution: Please use a short path for your Unpacked Game Files directory. For example: C:\\NMSAdvancedModdingStation\\Unpacked";
-                    string caption = "Error!";
+                    string errorMessage = packageErrorMessage("unpacked", this.form.applicationName); 
+                    errorMessage += packageErrorMessage("windows", "", "(Path too long!)");
+                    errorMessage += packageErrorMessage("sol3");
+                    string caption = packageErrorMessage("");
 
                     DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
@@ -301,10 +302,10 @@ namespace AdvancedModdingStation
             }
             catch (UnauthorizedAccessException)
             {
-                string errorMessage = this.form.applicationName + " encountered an error while trying to access " + pcBanksDir + Environment.NewLine + Environment.NewLine;
-                        errorMessage += "Error type: " + MainForm.errorType.Windows + " (Access denied!) " + Environment.NewLine;
-                        errorMessage += "Solution: Please make sure you have full read / write access to " + pcBanksDir;
-                string caption = "Error!";
+                string errorMessage =  packageErrorMessage("error", this.form.applicationName, pcBanksDir);
+                errorMessage += packageErrorMessage("windows", "", "(Access Denied!)");
+                errorMessage += packageErrorMessage("sol1", "", pcBanksDir);
+                string caption = packageErrorMessage("");
 
                 DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
@@ -319,10 +320,10 @@ namespace AdvancedModdingStation
             }
             catch (DirectoryNotFoundException)
             {
-                string errorMessage = this.form.applicationName + " encountered an error while trying to access " + pcBanksDir + Environment.NewLine + Environment.NewLine;
-                errorMessage += "Error type: " + MainForm.errorType.Windows + " (Directory not found!) "+ Environment.NewLine;
-                errorMessage += "Solution: Please make sure " + pcBanksDir + " exists before trying again.";
-                string caption = "Error!";
+                string errorMessage = packageErrorMessage("error", this.form.applicationName, pcBanksDir);
+                errorMessage += packageErrorMessage("windows", "", "(Directory not found!)");
+                errorMessage += packageErrorMessage("sol5","",pcBanksDir);
+                string caption = packageErrorMessage("");
 
                 DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
@@ -337,10 +338,10 @@ namespace AdvancedModdingStation
             }
             catch (PathTooLongException)
             {
-                string errorMessage = this.form.applicationName + " encountered an error while trying to access " + pcBanksDir + Environment.NewLine + Environment.NewLine;
-                        errorMessage += "Error type: " + MainForm.errorType.Windows + " (Path too long!) " + Environment.NewLine;
-                        errorMessage += "Solution: This error should never pop up. It would mean that you managed to install No Man's Sky in a location not accessable by Windows.";
-                string caption = "Error!";
+                string errorMessage = packageErrorMessage("error", this.form.applicationName, pcBanksDir);
+                errorMessage += packageErrorMessage("windows", "", "(Path too long!)");
+                errorMessage += packageErrorMessage("sol4");
+                string caption = packageErrorMessage("");
 
                 DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
@@ -355,12 +356,12 @@ namespace AdvancedModdingStation
             }
             catch (Exception e)
             {
-                string errorMessage = this.form.applicationName + " encountered an unknown error while trying to access " + pcBanksDir + Environment.NewLine + Environment.NewLine;
-                        errorMessage += "Error type: " + MainForm.errorType.Bug + Environment.NewLine;
-                        errorMessage += "Solution: Please file a bug report including the message below:" + Environment.NewLine + Environment.NewLine;
+                string errorMessage = packageErrorMessage("path", this.form.applicationName ,pcBanksDir);
+                        errorMessage += packageErrorMessage("bug");
+                        errorMessage += packageErrorMessage("solBug");
                         errorMessage += e.Message + Environment.NewLine + Environment.NewLine;
-                        errorMessage += "Press Cancel to save any unsaved work or Ok to close " + form.applicationName;
-                string caption = "Error!";
+                        errorMessage += packageErrorMessage("cancel",form.applicationName);
+                string caption = packageErrorMessage("");
 
                 DialogResult errorResult = MessageBox.Show(errorMessage, caption, MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
 
@@ -378,6 +379,7 @@ namespace AdvancedModdingStation
             {
                 string unpackPath = unpackedDir;
                 const PSArcXmlFile.XmlFileType xmlType = PSArcXmlFile.XmlFileType.Extract;
+
                 //PSArcXmlFile gamefilesXML1 = new PSArcXmlFile(xmlType);
                 //gamefilesXML1.OutputFileName = unpackPath;
                 //PSArcXmlFile gamefilesXML2 = new PSArcXmlFile(xmlType);
@@ -727,5 +729,25 @@ namespace AdvancedModdingStation
                 bw.RunWorkerAsync();
             }
         }
+
+        private string packageErrorMessage(string err, string applicationName = null, string path = null) => err switch
+        {
+            "unauthorized" => $"{applicationName} encountered an error while trying to create your Project directory (it doesn't exist yet). {Environment.NewLine}{Environment.NewLine}",
+            "unknown" => $"{applicationName} encountered an unknown error while trying to access {path} {Environment.NewLine}{Environment.NewLine}",
+            "error" => $"{applicationName} encountered an error while trying to access {path} {Environment.NewLine}{Environment.NewLine}",
+            "unpacked" => $"{applicationName} encountered an error while trying to create your Unpacked Game Files directory (it doesn't exist yet). {Environment.NewLine}{Environment.NewLine}",
+            "cancel" => $"Press Cancel to save any unsaved work or Ok to close {applicationName}",
+            "readUnpacked" => $"{applicationName} encountered an error while trying to read your Unpacked Game Files setting. {Environment.NewLine}{Environment.NewLine}",
+            "bug" => $"Error type: {MainForm.errorType.Bug} {Environment.NewLine}",
+            "windows" => $"Error type: {MainForm.errorType.Windows} {path} {Environment.NewLine}",
+            "misconfig" => $"Error type: {MainForm.errorType.Misconfiguration} {Environment.NewLine}",
+            "sol1" => $"Solution: Please make sure you have full read / write access to {path}",
+            "sol2" => @"Solution: Please use a short path for your Project directory. For example: C:\NMSAdvancedModdingStation\Project",
+            "sol3" => @"Solution: Please use a short path for your Unpacked Game Files directory. For example: C:\NMSAdvancedModdingStation\Unpacked",
+            "solBug" => $"Solution: Please file a bug report including the message below: {Environment.NewLine}{Environment.NewLine}",
+            "sol4" => "Solution: This error should never pop up. It would mean that you managed to install No Man's Sky in a location not accessable by Windows.",
+            "sol5" => $"Solution: Please make sure {path} exists before trying again.",
+            _ => "Error!"
+        };
     }
 }
